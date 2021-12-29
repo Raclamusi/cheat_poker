@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <title>Cheat Poker</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="">
+    <meta property="og:site_name" content="Cheat Poker">
+    <meta property="og:title" content="Cheat Poker">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:creator" content="@raclamusi">
+    <base href="">
+    <link rel="shortcut icon" type="image/png" href="">
+    <link rel="apple-touch-icon" type="image/png" href="">
+    <link rel="stylesheet" type="text/css" href="assets/stylesheet/common.css">
+    <link rel="stylesheet" type="text/css" href="assets/stylesheet/rooms.css">
+    <link rel="stylesheet" type="text/css" href="assets/stylesheet/poker.css">
+    <link rel="stylesheet" type="text/css" href="assets/stylesheet/dialog.css">
+</head>
+<body>
+    <!-- ダイアログ -->
+    <div id="dialog_outer" class="dialog_outer hidden">
+        <div id="dialog" class="dialog hidden">
+            <button id="dialog_close" class="dialog_close">×</button>
+            <div id="dialog_body" class="dialog_body"><div></div></div>
+        </div>
+    </div>
+
+    <!-- 共通 -->
+    <div class="nodisplay">
+        <div id="common_dialog_error" class="common_dialog">
+            <p id="common_dialog_error_message"></p>
+        </div>
+    </div>
+
+    <!-- ルーム選択 -->
+    <div id="scene_rooms" class="rooms scene hidden">
+        <div class="rooms_main">
+            <h1 class="rooms_title">ルーム選択</h1>
+            <div class="rooms_create">
+                <button id="rooms_create" class="rooms_room">ルームを作成</button>
+            </div>
+            <ul id="rooms_list" class="rooms_list"></ul>
+        </div>
+    </div>
+    <div class="nodisplay">
+        <div id="rooms_dialog_create" class="rooms_dialog_create">
+            <div class="common_dialog_title">ルーム作成</div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_name">ルーム名</label>
+                <input id="rooms_dialog_create_name" type="text" class="common_dialog_text">
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_locked">パスワードを使用</label>
+                <span class="common_dialog_checkbox"><input id="rooms_dialog_create_locked" type="checkbox"></span>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_password">パスワード</label>
+                <input id="rooms_dialog_create_password" type="text" class="common_dialog_text" disabled>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_discription">説明</label>
+                <textarea id="rooms_dialog_create_discription" class="common_dialog_textarea"></textarea>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_start_chips">開始時チップ</label>
+                <span class="common_dialog_number"><input id="rooms_dialog_create_start_chips" type="number" value="10000"></span>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_waiting_time">ターン制限時間</label>
+                <span class="common_dialog_number"><input id="rooms_dialog_create_waiting_time" type="number" value="15">秒</span>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_blind_interval">ブラインド上昇</label>
+                <span class="common_dialog_number"><input id="rooms_dialog_create_blind_interval" type="number" value="180">秒毎</span>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_debt">借金を許可</label>
+                <span class="common_dialog_checkbox"><input id="rooms_dialog_create_debt" type="checkbox" checked></span>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_cheat">「チート」を許可</label>
+                <span class="common_dialog_checkbox"><input id="rooms_dialog_create_cheat" type="checkbox" checked></span>
+            </div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_create_player">プレイヤー名</label>
+                <input id="rooms_dialog_create_player" type="text" class="common_dialog_text">
+            </div>
+            <div class="common_dialog_buttons">
+                <button id="rooms_dialog_create_button" class="common_button">作成</button>
+            </div>
+        </div>
+        <div id="rooms_dialog_join" class="rooms_dialog_join">
+            <div class="common_dialog_title">「<span id="rooms_dialog_join_room"></span>」に参加</div>
+            <div class="common_dialog_option">
+                <label for="rooms_dialog_join_player">プレイヤー名</label>
+                <input id="rooms_dialog_join_player" type="text">
+            </div>
+            <div id="rooms_dialog_join_password_outer" class="common_dialog_option hidden">
+                <label for="rooms_dialog_join_password">パスワード</label>
+                <input id="rooms_dialog_join_password" type="text">
+            </div>
+            <div class="common_dialog_buttons">
+                <button id="rooms_dialog_join_button" class="common_button">参加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ポーカー -->
+    <div id="scene_poker" class="poker scene hidden">
+        <div class="poker_table">
+            
+        </div>
+    </div>
+    <div class="nodisplay">
+        <div id="poker_dialog_exit" class="poker_dialog_exit">
+            <p>ルーム「<span id="poker_dialog_exit_roomname"></span>」を退出します</p>
+            <div><button id="poker_dialog_exit_ok">OK</button></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="assets/script/ie.js"></script>
+    <script type="module" src="assets/script/main.js"></script>
+</body>
+</html>

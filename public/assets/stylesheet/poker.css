@@ -1,0 +1,11 @@
+
+.poker {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: midnightblue;
+}
+
+.poker_table {
+    background-color: #174520;
+}

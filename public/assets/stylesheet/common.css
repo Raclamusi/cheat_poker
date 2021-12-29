@@ -1,0 +1,92 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+.scene {
+    width: 100vw;
+    height: 100vh;
+}
+
+.scene.hidden {
+    display: none;
+}
+
+.common_button {
+    padding: 0.3rem 0.6rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    background-color: brown;
+    border: 0.2rem ridge gold;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.05rem 0.1rem 0.1rem rgba(0, 0, 0, 0.3);
+}
+
+.common_dialog {
+    padding: 2rem;
+}
+
+.common_dialog_title {
+    margin: 0.5rem 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.common_dialog_option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.1rem 0;
+    font-size: 0.9rem;
+}
+
+.common_dialog_option.hidden {
+    display: none;
+}
+
+.common_dialog_option>label {
+    width: 50%;
+    padding-right: 1rem;
+}
+
+.common_dialog_text {
+    width: 50%;
+}
+
+.common_dialog_textarea {
+    width: 50%;
+    height: 3rem;
+}
+
+.common_dialog_checkbox {
+    width: 50%;
+    text-align: center;
+}
+
+.common_dialog_number {
+    width: 50%;
+    text-align: center;
+}
+
+.common_dialog_number>input {
+    width: 4rem;
+}
+
+.common_dialog_buttons {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 1rem;
+    padding: 0 1rem;
+}
+
+.nodisplay {
+    display: none;
+}

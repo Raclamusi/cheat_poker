@@ -1,0 +1,84 @@
+
+.rooms {
+    display: flex;
+    padding: 1rem 0.5rem;
+    background-color: #174520;
+}
+
+.rooms_main {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    padding: 1rem;
+    background-color: midnightblue;
+    border: 0.5rem ridge gold;
+    border-radius: 0.5rem;
+    box-shadow:
+        0 0.2rem 0.8rem 0.2rem rgba(0, 0, 0, 0.5),
+        inset 0 0.1rem 0.2rem 0.1rem rgba(0, 0, 0, 0.3);
+}
+
+.rooms_title {
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.rooms_create {
+    width: 100%;
+    height: auto;
+    padding: 0.5rem 0;
+}
+
+.rooms_list {
+    width: 100%;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.rooms_room {
+    width: 100%;
+    height: 5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: lightblue;
+    border: 0.2rem ridge gold;
+    border-radius: 1rem;
+    box-shadow: 0 0.1rem 0.4rem 0.1rem rgba(0, 0, 0, 0.5);
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.rooms_room:active {
+    background-color: skyblue;
+}
+
+.rooms_room_name {
+    text-align: left;
+    overflow: hidden;
+}
+
+.rooms_room_name.locked::before {
+    content: "🔒";
+}
+
+.rooms_room_state {
+    float: right;
+    font-size: 1rem;
+}
+
+.rooms_room_discription {
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: normal;
+    overflow: hidden;
+}
+
+.rooms_dialog_create {
+    margin: 0.5rem 0;
+}
+
+.rooms_dialog_create_button {
+    font-size: 1.2rem;
+}
