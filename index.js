@@ -20,7 +20,7 @@ const wsServer = new Server({ server });
  * @property {string} password
  */
 
-/** @type {Room[]} */
+/** @type {RoomInfo[]} */
 const roomsInfo = [];
 /** @type {number[]} */
 const idQueue = new Array(1000000).fill(0).map((e, i) => i);
