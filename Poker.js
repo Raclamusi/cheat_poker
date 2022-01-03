@@ -55,6 +55,12 @@ class PokerRoom {
                 this.broadcast("LEFT", { room: this.getInfo(), player: player.name });
                 break;
             }
+            case "CHAT": {
+                const player = this.players.find(e => e.ws === ws);
+                if (player === undefined) break;
+                this.broadcast("CHAT", { player: player.name, content: data.content });
+                break;
+            }
         }
     }
 }

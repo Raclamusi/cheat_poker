@@ -2,7 +2,7 @@
 .poker {
     display: flex;
     flex-direction: column;
-    background-color: midnightblue;
+    background-image: linear-gradient(midnightblue, darkblue);
 }
 
 .poker_top {
@@ -12,7 +12,7 @@
     padding: 1rem;
 }
 
-.poker_blind {
+.poker_top_time_remaining {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -25,11 +25,27 @@
 }
 
 .poker_chat {
+    display: flex;
+    flex-direction: column;
     height: 5rem;
     padding: 0 0.5rem;
-    overflow-y: hidden;
     color: white;
     background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+.poker_chat.open {
+    height: 15rem;
+    margin-bottom: -10rem;
+}
+
+.poker_chat_contents {
+    height: 100%;
+    overflow-y: hidden;
+}
+
+.open .poker_chat_contents {
+    overflow-y: auto;
 }
 
 .poker_chat_list {
@@ -38,43 +54,278 @@
     transform: translateY(calc(5rem - 100%));
 }
 
+.open .poker_chat_list {
+    transform: none;
+}
+
 .poker_chat_list>li {
     display: flex;
 }
 
-.poker_main {
+.poker_chat_sendbox {
+    display: none;
+    margin: 0.25rem 0;
+}
+
+.open .poker_chat_sendbox {
+    display: flex;
+}
+
+.poker_chat_text {
     width: 100%;
-    height: 20rem;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.poker_chat_send {
+    width: 3rem;
+    margin: 0 1rem;
+}
+
+.poker_main {
+    width: min(100%, 50rem);
+    height: 18rem;
     margin: auto;
 }
 
 .poker_table {
-    width: 90%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 95%;
     height: 10rem;
-    margin: 2.5rem auto;
+    margin: -2rem auto;
     background-color: #174520;
+    border: 1.5rem solid #0b2210;
     border-radius: 5rem;
-    box-shadow: inset 0 0 1rem 0 midnightblue;
+    box-shadow:
+        inset 0 0 2rem 0.5rem #0b2210;
+}
+
+.poker_table_box {
+    width: 3.5rem;
+    padding: 0.2rem 0;
+    font-size: 0.8rem;
+    color: white;
+    background-color: midnightblue;
+    border: 0.1rem double gold;
+    text-align: center;
+}
+
+.poker_table_community {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    font-size: 0.7rem;
 }
 
 .poker_players {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: 1fr 1fr;
-    grid-row-gap: 5rem;
-    justify-items: center;
-    position: relative;
-    top: -15rem;
+    display: flex;
+    justify-content: space-around;
     width: 100%;
-    height: 15rem;
+    height: 6rem;
 }
 
 .poker_player {
-    width: 3rem;
-    height: 5rem;
-    background-color: blue;
+    width: 18%;
+    height: 100%;
+    font-size: 0.6rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    text-align: center;
+    z-index: 1;
+}
+
+.poker_player.glow {
+    box-shadow: 0 0 1rem 0.2rem violet;
+}
+
+.poker_player.hidden {
+    opacity: 0;
+}
+
+.poker_player>.hidden {
+    opacity: 0;
+}
+
+.poker_player_state {
+    border: 0.1rem outset silver;
+}
+
+.poker_player_bet {
+    border: 0.1rem solid gold;
+}
+
+.poker_player_chip {
+    border: 0.1rem solid darkcyan;
 }
 
 .poker_dialog_leave {
     padding: 1rem 2rem;
+}
+
+.poker_operations {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 2rem 1rem rgba(0, 0, 0, 0.7);
+}
+
+.poker_operations_cards {
+    margin-top: -1.8rem;
+    font-size: 1.2rem;
+}
+
+.poker_operations_flex {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.poker_operations_information {
+    width: 6rem;
+    text-align: center;
+}
+
+.poker_operations_buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 8rem;
+}
+
+.poker_operations_button {
+    width: 6rem;
+    height: 2rem;
+    margin: 0.2rem;
+    border: 0.2rem outset #888800;
+    border-radius: 0.75rem 0;
+    font-size: 1rem;
+    background-color: yellow;
+}
+
+.poker_operations_button:active {
+    border: 0.2rem inset #888800;
+}
+
+.poker_operations_button.hidden {
+    opacity: 0;
+}
+
+.poker_operations_others {
+    width: 6rem;
+}
+
+.poker_operations_raise {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 5rem;
+    margin-bottom: 0.5rem;
+}
+
+.poker_operations_number {
+    width: 5rem;
+    text-align: center;
+}
+
+.poker_operations_range {
+    width: 6rem;
+}
+
+.poker_cheatcards {
+    position: absolute;
+    left: 100vw;
+    top: 30vh;
+    display: flex;
+    width: 10rem;
+    height: 15rem;
+    margin-left: -10rem;
+    background-color: #0b2210;
+    border: 0.3rem groove gold;
+    border-right: none;
+    overflow: auto;
+    transition: all 200ms ease;
+    z-index: 3;
+}
+
+.poker_cheatcards.hidden {
+    width: 0.3rem;
+    margin-left: -0.3rem;
+}
+
+.poker_cheatcards_grid {
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 0.2rem;
+    margin: 0.5rem 1.5rem 0.5rem 0.5rem;
+}
+
+
+
+.poker_card {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 2em;
+    height: 2.8em;
+    margin: 0 0.1rem;
+    font-weight: bold;
+    background-color: white;
+    border-radius: 0.2em;
+}
+
+.poker_card.back {
+    background-image:
+        repeating-linear-gradient(45deg, darkred, darkred 1px, transparent 1px, transparent 3px),
+        repeating-linear-gradient(-45deg, darkred, darkred 1px, transparent 1px, transparent 3px);
+    border: 0.3em solid white;
+}
+
+.poker_card_number {
+    text-align: center;
+}
+
+.poker_card_number::before {
+    display: block;
+}
+
+.poker_card_number.spade {
+    color: black;
+}
+
+.poker_card_number.spade::before {
+    content: "♠";
+}
+
+.poker_card_number.club {
+    color: darkgreen;
+}
+
+.poker_card_number.club::before {
+    content: "♣";
+}
+
+.poker_card_number.diamond {
+    color: darkorange;
+}
+
+.poker_card_number.diamond::before {
+    content: "♦";
+}
+
+.poker_card_number.heart {
+    color: red;
+}
+
+.poker_card_number.heart::before {
+    content: "♥";
 }
