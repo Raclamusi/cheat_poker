@@ -1,4 +1,4 @@
-import { addMessageListener, removeMessageListener, sendMessage } from "./ws.js";
+import { addOpenListener, addMessageListener, removeMessageListener, sendMessage } from "./ws.js";
 import { showDialog } from "./dialog.js";
 import { roomsProcedure } from "./rooms.js";
 import { pokerProcedure } from "./poker.js";
@@ -14,7 +14,13 @@ addMessageListener((message, data) => {
             removeMessageListener(roomsProcedure);
             poker.classList.remove("hidden");
             rooms.classList.add("hidden");
-            localStorage.setItem("joiningRoom", { })
+            localStorage.setItem("joiningRoom", JSON.stringify({
+                id: data.id,
+                player: data.player,
+                password: null,
+                reentry: data.reentry
+            }));
+            pokerProcedure(message, data);
             break;
         case "EXITED":
             addMessageListener(roomsProcedure);
@@ -22,9 +28,10 @@ addMessageListener((message, data) => {
             rooms.classList.remove("hidden");
             poker.classList.add("hidden");
             localStorage.removeItem("joiningRoom");
+            roomsProcedure(message, data);
             break;
         case "ERROR":
-            errorMessage.textContent = message;
+            errorMessage.textContent = data;
             showDialog("common_dialog_error");
             break;
     }
@@ -32,7 +39,9 @@ addMessageListener((message, data) => {
 addMessageListener(roomsProcedure);
 rooms.classList.remove("hidden");
 
-const joiningRoom = JSON.parse(localStorage.getItem("joiningRoom"));
-if (joiningRoom !== null) {
-    sendMessage("JOIN", joiningRoom);
-}
+addOpenListener(() => {
+    const joiningRoom = localStorage.getItem("joiningRoom");
+    if (joiningRoom !== null) {
+        sendMessage("JOIN", JSON.parse(joiningRoom));
+    }
+});

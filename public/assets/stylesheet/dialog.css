@@ -8,6 +8,7 @@
     top: 0;
     width: 100vw;
     height: 100vh;
+    z-index: 100;
 }
 
 .dialog_outer.hidden {
@@ -50,9 +51,6 @@
 }
 
 .dialog_body {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    margin-left: 1rem;
-    margin-right: 0;
-    overflow: hidden;
+    margin: 0.5rem 1rem;
+    overflow: auto;
 }

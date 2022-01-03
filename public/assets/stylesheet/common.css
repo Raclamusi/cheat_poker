@@ -9,6 +9,10 @@ html {
     font-size: 16px;
 }
 
+ul {
+    list-style: none;
+}
+
 .scene {
     width: 100vw;
     height: 100vh;
@@ -27,6 +31,12 @@ html {
     border: 0.2rem ridge gold;
     border-radius: 0.5rem;
     box-shadow: 0 0.05rem 0.1rem 0.1rem rgba(0, 0, 0, 0.3);
+}
+
+.common_button:active {
+    box-shadow:
+        0 0.05rem 0.1rem 0.1rem rgba(0, 0, 0, 0.3),
+        inset 0 0.05rem 0.2rem 0.1rem rgba(0, 0, 0, 0.3);
 }
 
 .common_dialog {

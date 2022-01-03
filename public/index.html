@@ -39,7 +39,7 @@
 
     <!-- ルーム選択 -->
     <div id="scene_rooms" class="rooms scene hidden">
-        <div class="rooms_main">
+        <div id="rooms_main" class="rooms_main hidden">
             <h1 class="rooms_title">ルーム選択</h1>
             <div class="rooms_create">
                 <button id="rooms_create" class="rooms_room">ルームを作成</button>
@@ -112,14 +112,41 @@
 
     <!-- ポーカー -->
     <div id="scene_poker" class="poker scene hidden">
-        <div class="poker_table">
-            
+        <div class="poker_top">
+            <button id="poker_leave" class="common_button">退室</button>
+            <div class="poker_blind">
+                <span id="poker_time_remaining">00:00</span>
+            </div>
+            <button id="poker_open_chat" class="common_button">チャット</button>
+        </div>
+        <div id="poker_chat" class="poker_chat">
+            <ul id="poker_chat_list" class="poker_chat_list"></ul>
+        </div>
+        <div class="poker_main">
+            <div class="poker_table">
+                
+            </div>
+            <div class="poker_players">
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+                <div class="poker_player"></div>
+            </div>
+        </div>
+        <div>
+            <div></div>
         </div>
     </div>
     <div class="nodisplay">
-        <div id="poker_dialog_exit" class="poker_dialog_exit">
-            <p>ルーム「<span id="poker_dialog_exit_roomname"></span>」を退出します</p>
-            <div><button id="poker_dialog_exit_ok">OK</button></div>
+        <div id="poker_dialog_leave" class="poker_dialog_leave">
+            <p>ルーム「<span id="poker_dialog_leave_room"></span>」を退出します</p>
+            <div class="common_dialog_buttons"><button id="poker_dialog_leave_ok" class="common_button">OK</button></div>
         </div>
     </div>
 

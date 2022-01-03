@@ -26,6 +26,22 @@ ws.addEventListener("message", event => {
 });
 
 /**
+ * サーバとの接続時に呼び出される関数を追加します。
+ * @param {() => void} listener サーバとの接続時に呼び出される関数
+ */
+export function addOpenListener(listener) {
+    ws.addEventListener("open", listener);
+}
+
+/**
+ * サーバとの接続時に呼び出される関数を削除します。
+ * @param {() => void} listener サーバとの接続時に呼び出される関数
+ */
+ export function removeOpenListener(listener) {
+    ws.removeEventListener("open", listener);
+}
+
+/**
  * サーバからのメッセージを受け取る関数を追加します。
  * @param {(message: string, data: any) => void} listener メッセージを受け取る関数
  */
@@ -41,7 +57,7 @@ export function addMessageListener(listener) {
  */
 export function removeMessageListener(listener) {
     if (listeners.includes(listener)) {
-        listeners.splice(listeners.findIndex(listener), 1);
+        listeners.splice(listeners.indexOf(listener), 1);
     }
 }
 
