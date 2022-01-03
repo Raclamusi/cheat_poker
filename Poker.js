@@ -1,4 +1,4 @@
-export class PokerPlayer {
+class PokerPlayer {
     constructor(name, ws) {
         this.name = name;
         this.ws = ws;
@@ -15,7 +15,7 @@ function send(ws, message, data) {
     ws.send(JSON.stringify({ message, data }));
 }
 
-export class PokerRoom {
+class PokerRoom {
     constructor(id, name, discription, password, creatorName, creatorWs) {
         this.id = id;
         this.name = name;
@@ -58,3 +58,5 @@ export class PokerRoom {
         }
     }
 }
+
+module.exports = { PokerRoom, PokerPlayer };
