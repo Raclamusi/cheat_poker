@@ -114,7 +114,7 @@
     <div id="scene_poker" class="poker scene hidden">
         <div class="poker_top">
             <button id="poker_leave" class="common_button">退室</button>
-            <div id="poker_time_remaining" class="poker_top_time_remaining">00:00</div>
+            <div id="poker_remaining_time" class="poker_top_time_remaining">00:00</div>
             <button id="poker_open_chat" class="common_button">チャット</button>
         </div>
         <div id="poker_chat" class="poker_chat">
@@ -132,21 +132,7 @@
                     <div class="poker_player_state">ベット</div>
                     <div class="poker_player_bet">2000</div>
                     <div class="poker_player_chip">13000</div>
-                    <div class="poker_player_name">raclamusi</div>
-                    <div class="poker_player_cards">
-                        <div class="poker_card">
-                            <span class="poker_card_number diamond">9</span>
-                        </div>
-                        <div class="poker_card">
-                            <span class="poker_card_number heart">8</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="poker_player">
-                    <div class="poker_player_state">ベット</div>
-                    <div class="poker_player_bet">2000</div>
-                    <div class="poker_player_chip">13000</div>
-                    <div class="poker_player_name">raclamusi</div>
+                    <div class="poker_player_name glow">raclamusi</div>
                     <div class="poker_player_cards">
                         <div class="poker_card">
                             <span class="poker_card_number diamond">9</span>
@@ -158,7 +144,7 @@
                 </div>
             </div>
             <div class="poker_table">
-                <div class="poker_table_box">
+                <div id="poker_blind" class="poker_table_box">
                     <div class="poker_table_blind">Ante</div>
                     <div class="poker_table_blind">50</div>
                 </div>
@@ -179,47 +165,19 @@
                         <span class="poker_card_number spade">K</span>
                     </div>
                 </div>
-                <div id="poker_table_pot" class="poker_table_box">
-                    <div>Pot</div>
-                    <div>0</div>
+                <div id="poker_pot" class="poker_table_box">
+                    <div id="poker_pot_text">Pot</div>
+                    <div id="poker_pot_number">0</div>
                 </div>
             </div>
             <div id="poker_players2" class="poker_players">
-                <div class="poker_player">
-                    <div class="poker_player_state">ベット</div>
-                    <div class="poker_player_bet">2000</div>
-                    <div class="poker_player_chip">13000</div>
-                    <div class="poker_player_name">raclamusi</div>
-                    <div class="poker_player_cards">
-                        <div class="poker_card">
-                            <span class="poker_card_number diamond">9</span>
-                        </div>
-                        <div class="poker_card">
-                            <span class="poker_card_number heart">8</span>
-                        </div>
-                    </div>
-                </div>
                 <div class="poker_player hidden">
 
-                </div>
-                <div class="poker_player">
-                    <div class="poker_player_state">ベット</div>
-                    <div class="poker_player_bet">2000</div>
-                    <div class="poker_player_chip">13000</div>
-                    <div class="poker_player_name">raclamusi</div>
-                    <div class="poker_player_cards">
-                        <div class="poker_card">
-                            <span class="poker_card_number diamond">9</span>
-                        </div>
-                        <div class="poker_card">
-                            <span class="poker_card_number heart">8</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
         <div class="poker_operations">
-            <div class="poker_operations_cards">
+            <div id="poker_hole_cards" class="poker_operations_cards">
                 <div class="poker_card">
                     <span class="poker_card_number spade">A</span>
                 </div>
@@ -233,16 +191,17 @@
                     <div class="poker_player_bet">2000</div>
                     <div class="poker_player_chip">13000</div>
                     <div class="poker_player_name">raclamusi</div>
+                    <div class="poker_player_timelimit">10</div>
                 </div>
                 <div class="poker_operations_buttons">
-                    <button class="poker_operations_button">フォールド</button>
-                    <button class="poker_operations_button">コール</button>
-                    <button class="poker_operations_button">レイズ</button>
+                    <button id="poker_check" class="poker_operations_button">フォールド</button>
+                    <button id="poker_call" class="poker_operations_button">コール</button>
+                    <button id="poker_raise" class="poker_operations_button">レイズ</button>
                 </div>
                 <div class="poker_operations_others">
                     <div class="poker_operations_raise">
                         <span>レイズ額</span>
-                        <input id="poker_raise_number" class="poker_operations_number" type="number" value="0">
+                        <input id="poker_raise_number" class="poker_operations_number" type="number" value="1000">
                         <input id="poker_raise_range" class="poker_operations_range" type="range" min="1000" max="15000" step="1000" value="1000">
                     </div>
                     <button id="poker_operations_cheat" class="poker_operations_button">チート</button>
@@ -250,63 +209,7 @@
             </div>
         </div>
         <div id="poker_cheatcards" class="poker_cheatcards hidden">
-            <div class="poker_cheatcards_grid">
-                <div class="poker_card"><span class="poker_card_number spade">A</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">K</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">Q</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">J</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">10</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">9</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">8</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">7</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">6</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">5</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">4</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">3</span></div>
-                <div class="poker_card"><span class="poker_card_number spade">2</span></div>
-                
-                <div class="poker_card"><span class="poker_card_number club">A</span></div>
-                <div class="poker_card"><span class="poker_card_number club">K</span></div>
-                <div class="poker_card"><span class="poker_card_number club">Q</span></div>
-                <div class="poker_card"><span class="poker_card_number club">J</span></div>
-                <div class="poker_card"><span class="poker_card_number club">10</span></div>
-                <div class="poker_card"><span class="poker_card_number club">9</span></div>
-                <div class="poker_card"><span class="poker_card_number club">8</span></div>
-                <div class="poker_card"><span class="poker_card_number club">7</span></div>
-                <div class="poker_card"><span class="poker_card_number club">6</span></div>
-                <div class="poker_card"><span class="poker_card_number club">5</span></div>
-                <div class="poker_card"><span class="poker_card_number club">4</span></div>
-                <div class="poker_card"><span class="poker_card_number club">3</span></div>
-                <div class="poker_card"><span class="poker_card_number club">2</span></div>
-                
-                <div class="poker_card"><span class="poker_card_number diamond">A</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">K</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">Q</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">J</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">10</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">9</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">8</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">7</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">6</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">5</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">4</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">3</span></div>
-                <div class="poker_card"><span class="poker_card_number diamond">2</span></div>
-                
-                <div class="poker_card"><span class="poker_card_number heart">A</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">K</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">Q</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">J</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">10</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">9</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">8</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">7</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">6</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">5</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">4</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">3</span></div>
-                <div class="poker_card"><span class="poker_card_number heart">2</span></div>
-            </div>
+            <div id="poker_cheatcards_grid" class="poker_cheatcards_grid"></div>
         </div>
     </div>
     <div class="nodisplay">

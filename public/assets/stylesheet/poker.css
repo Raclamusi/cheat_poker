@@ -31,7 +31,7 @@
     padding: 0 0.5rem;
     color: white;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 2;
+    z-index: 10;
 }
 
 .poker_chat.open {
@@ -155,11 +155,22 @@
 }
 
 .poker_player_bet {
-    border: 0.1rem solid gold;
+    border: 0.1rem outset gold;
 }
 
 .poker_player_chip {
-    border: 0.1rem solid darkcyan;
+    border: 0.1rem outset darkcyan;
+}
+
+.poker_player_name.glow {
+    font-weight: bold;
+    color: black;
+    background-color: yellow;
+}
+
+.poker_player_timelimit {
+    color: yellow;
+    font-size: 1rem;
 }
 
 .poker_dialog_leave {
@@ -178,6 +189,11 @@
 .poker_operations_cards {
     margin-top: -1.8rem;
     font-size: 1.2rem;
+}
+
+.poker_operations_cards.glow {
+    outline: max(100vw, 100vh) solid rgba(0, 0, 0, 0.8);
+    z-index: 20;
 }
 
 .poker_operations_flex {
@@ -251,8 +267,8 @@
     border: 0.3rem groove gold;
     border-right: none;
     overflow: auto;
-    transition: all 200ms ease;
-    z-index: 3;
+    transition: all 200ms ease-out;
+    z-index: 21;
 }
 
 .poker_cheatcards.hidden {
@@ -281,6 +297,8 @@
     font-weight: bold;
     background-color: white;
     border-radius: 0.2em;
+    transition-property: margin-top, opacity;
+    transition-duration: 500ms;
 }
 
 .poker_card.back {
@@ -288,6 +306,15 @@
         repeating-linear-gradient(45deg, darkred, darkred 1px, transparent 1px, transparent 3px),
         repeating-linear-gradient(-45deg, darkred, darkred 1px, transparent 1px, transparent 3px);
     border: 0.3em solid white;
+}
+
+.poker_card.glow {
+    box-shadow: 0 0 1rem 0.2rem violet;
+}
+
+.poker_card.hidden {
+    margin-top: -1rem;
+    opacity: 0;
 }
 
 .poker_card_number {

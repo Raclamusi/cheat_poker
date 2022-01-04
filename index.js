@@ -98,12 +98,36 @@ wsServer.on("connection", ws => {
                     sendMessage(ws, "ERROR", `ルーム名「${roomInfo.name}」は既に使用されています`);
                     break;
                 }
+                if (roomInfo.startChips === null || roomInfo.startChips <= 0) {
+                    sendMessage(ws, "ERROR", "開始時チップは正の正数である必要があります");
+                    break;
+                }
+                if (roomInfo.waitingTime === null || roomInfo.waitingTime <= 0) {
+                    sendMessage(ws, "ERROR", "ターン制限時間は正の正数である必要があります");
+                    break;
+                }
+                if (roomInfo.blindInterval === null || roomInfo.blindInterval <= 0) {
+                    sendMessage(ws, "ERROR", "ブラインド上昇間隔は正の正数である必要があります");
+                    break;
+                }
                 const id = idQueue[0];
                 idQueue.shift();
-                const room = new PokerRoom(id, roomInfo.name, roomInfo.discription, roomInfo.locked ? roomInfo.password : null, roomInfo.player, ws);
+                const room = new PokerRoom(
+                    id,
+                    roomInfo.name,
+                    roomInfo.discription,
+                    roomInfo.locked ? roomInfo.password : null,
+                    roomInfo.startChips,
+                    roomInfo.waitingTime,
+                    roomInfo.blindInterval,
+                    roomInfo.debt,
+                    roomInfo.cheat,
+                    roomInfo.player,
+                    ws
+                );
                 rooms.set(id, room);
                 wsRoomMap.set(ws, id);
-                sendMessage(ws, "ENTERED", { room: room.getInfo(), name: room.name, id: id, player: roomInfo.player, reentry: room.players[0].reentry });
+                sendMessage(ws, "ENTERED", { room: room.getInfo(room.players[0]), name: room.name, id: id, player: roomInfo.player, reentry: room.players[0].reentry });
                 updateRooms();
                 break;
             }
@@ -138,7 +162,8 @@ wsServer.on("connection", ws => {
                     room.join(entry.player, ws);
                 }
                 wsRoomMap.set(ws, entry.id);
-                sendMessage(ws, "ENTERED", { room: room.getInfo(), name: room.name, id: entry.id, player: entry.player, reentry: room.players.find(e => e.ws === ws).reentry });
+                const player = room.players.find(e => e.ws === ws);
+                sendMessage(ws, "ENTERED", { room: room.getInfo(player), name: room.name, id: entry.id, player: entry.player, reentry: player.reentry });
                 updateRooms();
                 break;
             }
