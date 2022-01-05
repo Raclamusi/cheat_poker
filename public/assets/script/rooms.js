@@ -12,7 +12,6 @@ const dialogCreateDiscriptionTextarea = document.getElementById("rooms_dialog_cr
 const dialogCreateStartChipsInput = document.getElementById("rooms_dialog_create_start_chips");
 const dialogCreateWaitingTimeInput = document.getElementById("rooms_dialog_create_waiting_time");
 const dialogCreateBlindIntervalInput = document.getElementById("rooms_dialog_create_blind_interval");
-const dialogCreateDebtCheckbox = document.getElementById("rooms_dialog_create_debt");
 const dialogCreateCheatCheckbox = document.getElementById("rooms_dialog_create_cheat");
 const dialogCreatePlayerInput = document.getElementById("rooms_dialog_create_player");
 const dialogCreateButton = document.getElementById("rooms_dialog_create_button");
@@ -42,13 +41,12 @@ dialogCreateButton.addEventListener("click", () => {
     const startChips = parseInt(dialogCreateStartChipsInput.value);
     const waitingTime = parseInt(dialogCreateWaitingTimeInput.value);
     const blindInterval = parseInt(dialogCreateBlindIntervalInput.value);
-    const debt = dialogCreateDebtCheckbox.checked;
     const cheat = dialogCreateCheatCheckbox.checked;
     const player = dialogCreatePlayerInput.value;
     sendMessage("CREATE", {
         name, locked, password, discription,
         startChips, waitingTime, blindInterval,
-        debt, cheat, player,
+        cheat, player,
     });
 });
 

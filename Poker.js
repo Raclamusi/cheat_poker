@@ -42,7 +42,7 @@ function send(ws, message, data) {
 }
 
 class PokerRoom {
-    constructor(id, name, discription, password, startChips, waitingTime, blindInterval, debt, cheat, creatorName, creatorWs) {
+    constructor(id, name, discription, password, startChips, waitingTime, blindInterval, cheat, creatorName, creatorWs) {
         this.id = id;
         this.name = name;
         this.discription = discription;
@@ -50,7 +50,6 @@ class PokerRoom {
         this.startChips = startChips;
         this.waitingTime = waitingTime;
         this.blindInterval = blindInterval;
-        this.debt = debt;
         this.cheat = cheat;
         this.players = [new PokerPlayer(creatorName, creatorWs, startChips)];
         this.started = false;
@@ -59,6 +58,8 @@ class PokerRoom {
         this.pot = 0;
         this.ante = 50;
         this.showdown = false;
+        this.blindTimer = 0;
+        this.blindInterval = null;
     }
     empty() {
         return this.players.every(e => !e.online);

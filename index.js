@@ -120,7 +120,6 @@ wsServer.on("connection", ws => {
                     roomInfo.startChips,
                     roomInfo.waitingTime,
                     roomInfo.blindInterval,
-                    roomInfo.debt,
                     roomInfo.cheat,
                     roomInfo.player,
                     ws
