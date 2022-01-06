@@ -141,7 +141,7 @@ wsServer.on("connection", ws => {
                 const room = rooms.get(entry.id);
                 if (entry.reentry !== undefined) {
                     const player = room.players.find(e => e.name === entry.player);
-                    if (player === undefined || player.reentry !== entry.reentry) {
+                    if (player === undefined || player.online || player.reentry !== entry.reentry) {
                         break;
                     }
                     wsRoomMap.delete(player.ws);
