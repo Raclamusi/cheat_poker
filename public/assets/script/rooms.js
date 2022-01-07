@@ -16,7 +16,8 @@ const dialogCreateCheatCheckbox = document.getElementById("rooms_dialog_create_c
 const dialogCreatePlayerInput = document.getElementById("rooms_dialog_create_player");
 const dialogCreateButton = document.getElementById("rooms_dialog_create_button");
 
-const dialogJoinRoom = document.getElementById("rooms_dialog_join_room");
+const dialogJoinRoomSpan = document.getElementById("rooms_dialog_join_room");
+const dialogJoinDiscriptionSpan = document.getElementById("rooms_dialog_join_discription");
 const dialogJoinPassword = document.getElementById("rooms_dialog_join_password_outer");
 const dialogJoinPlayerInput = document.getElementById("rooms_dialog_join_player");
 const dialogJoinPasswordInput = document.getElementById("rooms_dialog_join_password");
@@ -53,7 +54,8 @@ dialogCreateButton.addEventListener("click", () => {
 function onSelectRoom() {
     const id = parseInt(this.id.slice("rooms_room_".length));
     const room = roomsInfo.find(e => e.id === id);
-    dialogJoinRoom.textContent = room.name;
+    dialogJoinRoomSpan.textContent = room.name;
+    dialogJoinDiscriptionSpan.textContent = room.discription;
     dialogJoinPassword.classList[room.locked ? "remove" : "add"]("hidden");
     dialogJoinButton.onclick = () => {
         hideDialog();
