@@ -115,6 +115,10 @@
     text-align: center;
 }
 
+.poker_table_box.hidden {
+    display: none;
+}
+
 .poker_table_community {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -158,8 +162,11 @@
     border: 0.1rem outset gold;
 }
 
-.poker_player_chip {
+.poker_player_chips {
     border: 0.1rem outset darkcyan;
+}
+
+.poker_player_name {
 }
 
 .poker_player_name.glow {
@@ -168,13 +175,12 @@
     background-color: yellow;
 }
 
+.poker_player_cards {
+}
+
 .poker_player_timelimit {
     color: yellow;
     font-size: 1rem;
-}
-
-.poker_dialog_leave {
-    padding: 1rem 2rem;
 }
 
 .poker_operations {
@@ -187,6 +193,7 @@
 }
 
 .poker_operations_cards {
+    height: 3.4rem;
     margin-top: -1.8rem;
     font-size: 1.2rem;
 }
@@ -208,6 +215,10 @@
     text-align: center;
 }
 
+.poker_operations_information>.hidden {
+    opacity: 0;
+}
+
 .poker_operations_buttons {
     display: flex;
     flex-direction: column;
@@ -226,7 +237,17 @@
 }
 
 .poker_operations_button:active {
-    border: 0.2rem inset #888800;
+    border-style: inset;
+}
+
+.poker_operations_button.glow {
+    border: 0.2rem outset #880000;
+    color: white;
+    background-color: red;
+}
+
+.poker_operations_button.glow:active {
+    border-style: inset;
 }
 
 .poker_operations_button.hidden {
@@ -244,6 +265,10 @@
     align-items: center;
     height: 5rem;
     margin-bottom: 0.5rem;
+}
+
+.poker_operations_raise.hidden {
+    opacity: 0;
 }
 
 .poker_operations_number {
@@ -315,6 +340,7 @@
 .poker_card.hidden {
     margin-top: -1rem;
     opacity: 0;
+    transition: none;
 }
 
 .poker_card_number {
@@ -323,6 +349,7 @@
 
 .poker_card_number::before {
     display: block;
+    margin-bottom: -0.4em;
 }
 
 .poker_card_number.spade {

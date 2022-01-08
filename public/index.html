@@ -127,82 +127,40 @@
             </div>
         </div>
         <div class="poker_main">
-            <div id="poker_players1" class="poker_players">
-                <div class="poker_player glow">
-                    <div class="poker_player_state">ベット</div>
-                    <div class="poker_player_bet">2000</div>
-                    <div class="poker_player_chip">13000</div>
-                    <div class="poker_player_name glow">raclamusi</div>
-                    <div class="poker_player_cards">
-                        <div class="poker_card">
-                            <span class="poker_card_number diamond">9</span>
-                        </div>
-                        <div class="poker_card">
-                            <span class="poker_card_number heart">8</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="poker_players0" class="poker_players"></div>
             <div class="poker_table">
-                <div id="poker_blind" class="poker_table_box">
-                    <div class="poker_table_blind">Ante</div>
-                    <div class="poker_table_blind">50</div>
+                <div id="poker_blind" class="poker_table_box hidden">
+                    <div id="poker_blind_text">Ante</div>
+                    <div id="poker_blind_number">50</div>
                 </div>
-                <div class="poker_table_community">
-                    <div class="poker_card">
-                        <span class="poker_card_number heart">10</span>
-                    </div>
-                    <div class="poker_card">
-                        <span class="poker_card_number heart">Q</span>
-                    </div>
-                    <div class="poker_card">
-                        <span class="poker_card_number heart">J</span>
-                    </div>
-                    <div class="poker_card">
-                        <span class="poker_card_number heart">K</span>
-                    </div>
-                    <div class="poker_card">
-                        <span class="poker_card_number spade">K</span>
-                    </div>
-                </div>
-                <div id="poker_pot" class="poker_table_box">
+                <div id="poker_community_cards" class="poker_table_community"></div>
+                <div id="poker_pot" class="poker_table_box hidden">
                     <div id="poker_pot_text">Pot</div>
                     <div id="poker_pot_number">0</div>
                 </div>
             </div>
-            <div id="poker_players2" class="poker_players">
-                <div class="poker_player hidden">
-
-                </div>
-            </div>
+            <div id="poker_players1" class="poker_players"></div>
         </div>
         <div class="poker_operations">
-            <div id="poker_hole_cards" class="poker_operations_cards">
-                <div class="poker_card">
-                    <span class="poker_card_number spade">A</span>
-                </div>
-                <div class="poker_card">
-                    <span class="poker_card_number heart">A</span>
-                </div>
-            </div>
+            <div id="poker_hole_cards" class="poker_operations_cards"></div>
             <div class="poker_operations_flex">
                 <div class="poker_operations_information">
-                    <div class="poker_player_state">ベット</div>
-                    <div class="poker_player_bet">2000</div>
-                    <div class="poker_player_chip">13000</div>
-                    <div class="poker_player_name">raclamusi</div>
-                    <div class="poker_player_timelimit">10</div>
+                    <div id="poker_my_state" class="poker_player_state hidden">no state</div>
+                    <div id="poker_my_bet" class="poker_player_bet hidden">0</div>
+                    <div id="poker_my_chips" class="poker_player_chips">0</div>
+                    <div id="poker_my_timelimit" class="poker_player_timelimit hidden">0</div>
+                    <div id="poker_my_name" class="poker_player_name"></div>
                 </div>
                 <div class="poker_operations_buttons">
-                    <button id="poker_check" class="poker_operations_button">フォールド</button>
-                    <button id="poker_call" class="poker_operations_button">コール</button>
-                    <button id="poker_raise" class="poker_operations_button">レイズ</button>
+                    <button id="poker_check" class="poker_operations_button hidden"></button>
+                    <button id="poker_call" class="poker_operations_button">準備OK</button>
+                    <button id="poker_raise" class="poker_operations_button hidden"></button>
                 </div>
                 <div class="poker_operations_others">
-                    <div class="poker_operations_raise">
+                    <div id="poker_raise_inputs" class="poker_operations_raise">
                         <span>レイズ額</span>
-                        <input id="poker_raise_number" class="poker_operations_number" type="number" value="1000">
-                        <input id="poker_raise_range" class="poker_operations_range" type="range" min="1000" max="15000" step="1000" value="1000">
+                        <input id="poker_raise_number" class="poker_operations_number" type="number" value="100">
+                        <input id="poker_raise_range" class="poker_operations_range" type="range" min="100" max="10000" step="100" value="100">
                     </div>
                     <button id="poker_operations_cheat" class="poker_operations_button">チート</button>
                 </div>
@@ -213,9 +171,17 @@
         </div>
     </div>
     <div class="nodisplay">
-        <div id="poker_dialog_leave" class="poker_dialog_leave">
+        <div id="poker_dialog_leave" class="common_dialog">
             <p>ルーム「<span id="poker_dialog_leave_room"></span>」を退出します</p>
-            <div class="common_dialog_buttons"><button id="poker_dialog_leave_ok" class="common_button">OK</button></div>
+            <div class="common_dialog_buttons">
+                <button id="poker_dialog_leave_ok" class="common_button">OK</button>
+            </div>
+        </div>
+        <div id="poker_dialog_nocheat" class="common_dialog">
+            <p>チートは、カードが3枚出されるまでに一度だけ使えます</p>
+            <div class="common_dialog_buttons">
+                <button id="poker_dialog_nocheat_ok" class="common_button">OK</button>
+            </div>
         </div>
     </div>
 
