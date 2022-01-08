@@ -1,11 +1,14 @@
 import { addOpenListener, addMessageListener, removeMessageListener, sendMessage } from "./ws.js";
-import { showDialog } from "./dialog.js";
+import { showDialog, hideDialog } from "./dialog.js";
 import { roomsProcedure } from "./rooms.js";
 import { pokerProcedure } from "./poker.js";
 
 const rooms = document.getElementById("scene_rooms");
 const poker = document.getElementById("scene_poker");
 const errorMessage = document.getElementById("common_dialog_error_message");
+const errorOk = document.getElementById("common_dialog_error_ok");
+
+errorOk.addEventListener("click", hideDialog);
 
 addMessageListener((message, data) => {
     switch (message) {
