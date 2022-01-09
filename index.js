@@ -86,11 +86,13 @@ wsServer.on("connection", ws => {
                     break;
                 }
                 const roomInfo = parsedData.data;
-                if (!/\S/.test(roomInfo.name)) {
+                roomInfo.name = roomInfo.name.replace(/\s+/g, " ").replace(/^ | $/g, "");
+                roomInfo.player = roomInfo.player.replace(/\s+/g, " ").replace(/^ | $/g, "");
+                if (roomInfo.name.length === 0) {
                     sendMessage(ws, "ERROR", "ルーム名を入力する必要があります");
                     break;
                 }
-                if (!/\S/.test(roomInfo.player)) {
+                if (roomInfo.player.length === 0) {
                     sendMessage(ws, "ERROR", "プレイヤー名を入力する必要があります");
                     break;
                 }
@@ -132,13 +134,14 @@ wsServer.on("connection", ws => {
             }
             case "JOIN": {
                 const entry = parsedData.data;
+                entry.player = entry.player.replace(/\s+/g, " ").replace(/^ | $/g, "");
                 if (!rooms.has(entry.id)) {
                     if (entry.reentry === undefined) {
                         sendMessage(ws, "ERROR", "ルームに参加できません");
                     }
                     break;
                 }
-                if (!/\S/.test(entry.player)) {
+                if (entry.player.length === 0) {
                     if (entry.reentry === undefined) {
                         sendMessage(ws, "ERROR", "プレイヤー名を入力する必要があります");
                     }
