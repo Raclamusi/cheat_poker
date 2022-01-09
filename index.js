@@ -86,11 +86,11 @@ wsServer.on("connection", ws => {
                     break;
                 }
                 const roomInfo = parsedData.data;
-                if (roomInfo.name.length === 0) {
+                if (!/\S/.test(roomInfo.name)) {
                     sendMessage(ws, "ERROR", "ルーム名を入力する必要があります");
                     break;
                 }
-                if (roomInfo.player.length === 0) {
+                if (!/\S/.test(roomInfo.player)) {
                     sendMessage(ws, "ERROR", "プレイヤー名を入力する必要があります");
                     break;
                 }
@@ -138,7 +138,7 @@ wsServer.on("connection", ws => {
                     }
                     break;
                 }
-                if (entry.player.length === 0) {
+                if (!/\S/.test(entry.player)) {
                     sendMessage(ws, "ERROR", "プレイヤー名を入力する必要があります");
                     break;
                 }
