@@ -139,7 +139,9 @@ wsServer.on("connection", ws => {
                     break;
                 }
                 if (!/\S/.test(entry.player)) {
-                    sendMessage(ws, "ERROR", "プレイヤー名を入力する必要があります");
+                    if (entry.reentry === undefined) {
+                        sendMessage(ws, "ERROR", "プレイヤー名を入力する必要があります");
+                    }
                     break;
                 }
                 const room = rooms.get(entry.id);
