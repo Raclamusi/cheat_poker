@@ -42,6 +42,7 @@
 .poker_chat_contents {
     height: 100%;
     overflow-y: hidden;
+    overflow-wrap: break-word;
 }
 
 .open .poker_chat_contents {
@@ -58,8 +59,16 @@
     transform: none;
 }
 
-.poker_chat_list>li {
-    display: flex;
+.poker_chat_sender {
+    color: #aaaaaa;
+}
+
+.poker_chat_sender::before {
+    content: "[";
+}
+
+.poker_chat_sender::after {
+    content: "]";
 }
 
 .poker_chat_sendbox {
@@ -166,8 +175,10 @@
     border: 0.1rem outset darkcyan;
 }
 
+/*
 .poker_player_name {
 }
+*/
 
 .poker_player_name.glow {
     font-weight: bold;
@@ -175,8 +186,10 @@
     background-color: yellow;
 }
 
+/*
 .poker_player_cards {
 }
+*/
 
 .poker_player_timelimit {
     color: yellow;
@@ -307,6 +320,27 @@
     grid-template-rows: repeat(4, 1fr);
     gap: 0.2rem;
     margin: 0.5rem 1.5rem 0.5rem 0.5rem;
+}
+
+
+
+.poker_dialog_start_text {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.poker_dialog_blind {
+    padding: 1rem;
+}
+
+.poker_dialog_blind_list {
+    margin: 0 1rem;
+}
+
+.poker_dialog_blind_list>li {
+    display: flex;
+    justify-content: space-between;
 }
 
 

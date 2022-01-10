@@ -42,11 +42,15 @@ const dialogLeaveOkButton = document.getElementById("poker_dialog_leave_ok");
 
 const dialogNocheatOkButton = document.getElementById("poker_dialog_nocheat_ok");
 
+const dialogBlindAnteSpan = document.getElementById("poker_dialog_blind_ante");
+const dialogBlindSbSpan = document.getElementById("poker_dialog_blind_sb");
+const dialogBlindBbSpan = document.getElementById("poker_dialog_blind_bb");
+
 let room = null;
 let blindTimer = 0;
-let blindTimerInterval = null;
+let blindTimerId = null;
 let limitTimer = 0;
-let limitTimerInterval = null;
+let limitTimerId = null;
 const suits = ["spade", "club", "diamond", "heart"];
 const cardNumbers = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
 
@@ -103,18 +107,18 @@ function update(roomInfo) {
 
     const addCard = element => {
         clearChildren(element);
-        return (card, back=false) => {
+        return (card) => {
             const cardDiv = document.createElement("div");
             element.appendChild(cardDiv);
             cardDiv.classList.add("poker_card");
-            if (back) {
+            if (card === null) {
                 cardDiv.classList.add("back");
                 return;
             }
             const numberSpan = document.createElement("span");
             cardDiv.appendChild(numberSpan);
             numberSpan.classList.add("poker_card_number", card.suit);
-            numberSpan.textContent = card.number;
+            numberSpan.textContent = card.number === 1 ? cardNumbers[0] : cardNumbers[14 - card.number];
         };
     };
 
@@ -126,14 +130,17 @@ function update(roomInfo) {
             playerDiv.classList.add("hidden");
             return;
         }
-        if (!room.started && player.ready || player.turn) {
+        if (!room.started && player.ready || player.step) {
             playerDiv.classList.add("glow");
         }
         
         const stateDiv = document.createElement("div");
         playerDiv.appendChild(stateDiv);
         stateDiv.classList.add("poker_player_state");
-        if (player.state.length === 0) {
+        if (!player.online) {
+            stateDiv.textContent = "オフライン";
+        }
+        else if (player.state.length === 0) {
             stateDiv.textContent = "no state";
             stateDiv.classList.add("hidden");
         }
@@ -152,7 +159,12 @@ function update(roomInfo) {
         const chipsDiv = document.createElement("div");
         playerDiv.appendChild(chipsDiv);
         chipsDiv.classList.add("poker_player_chips");
-        chipsDiv.textContent = player.chips;
+        if (player.rank === 0) {
+            chipsDiv.textContent = player.chips;
+        }
+        else {
+            chipsDiv.textContent = `${player.rank}位`;
+        }
 
         const nameDiv = document.createElement("div");
         playerDiv.appendChild(nameDiv);
@@ -165,13 +177,8 @@ function update(roomInfo) {
         const cardsDiv = document.createElement("div");
         playerDiv.appendChild(cardsDiv);
         cardsDiv.classList.add("poker_player_cards");
-
-        if (player.cards === null) {
-            addCard(cardsDiv, true);
-            addCard(cardsDiv, true);
-        }
-        else {
-            player.cards.forEach(addCard(cardsDiv));
+        if (room.started) {
+            (player.cards === null ? [null, null] : player.cards).forEach(addCard(cardsDiv));
         }
     };
 
@@ -188,26 +195,17 @@ function update(roomInfo) {
 
     room.me.cards.forEach(addCard(holeCardsDiv));
 
-    if (room.me.state.length === 0) {
-        myStateDiv.textContent = "no state";
-        myStateDiv.classList.add("hidden");
-    }
-    else {
-        myStateDiv.textContent = room.me.state;
-    }
+    myStateDiv.textContent = room.me.state.length === 0 ? "no state" : room.me.state;
+    myStateDiv.classList.toggle("hidden", room.me.state.length === 0);
     myBetDiv.textContent = room.me.bet;
-    if (room.me.bet === 0) {
-        myBetDiv.classList.add("hidden");
-    }
+    myBetDiv.classList.toggle("hidden", room.me.bet === 0);
     myChipsDiv.textContent = room.me.chips;
     myNameDiv.textContent = room.me.name;
-    if (room.me.button) {
-        myNameDiv.classList.add("glow");
-    }
-    myTimelimitDiv.classList.toggle("hidden", !room.me.turn);
+    myNameDiv.classList.toggle("glow", room.me.button);
+    myTimelimitDiv.classList.toggle("hidden", !room.me.step);
 
     if (room.started) {
-        if (room.me.turn) {
+        if (room.me.step) {
             checkButton.textContent = room.bet === 0 ? "チェック" : "フォールド";
             checkButton.classList.remove("hidden");
             checkButton.onclick = checkFold;
@@ -244,7 +242,10 @@ function update(roomInfo) {
         raiseButton.onclick = null;
     }
     
-    raiseInputs.classList.toggle("hidden", !room.started || room.me.chips === 0);
+    raiseInputs.classList.toggle("hidden", !room.me.step);
+    raiseNumber.value = Math.min(room.me.chips, room.bet + room.ante * 4);
+    raiseRange.value = Math.min(room.me.chips, room.bet + room.ante * 4);
+    raiseRange.min = Math.floor((room.bet + 1) / 100) * 100;
     raiseRange.max = Math.ceil(room.me.chips / 100) * 100;
 
     cheatButton.classList.toggle("hidden", !room.started || !room.cheat || room.me.chips === 0);
@@ -288,13 +289,13 @@ blindDiv.addEventListener("click", () => {
 
 potDiv.addEventListener("click", () => {
     if (room.pot === 0 || room.me.chips === 0) return;
-    raiseNumber.value = raiseRange.value = Math.max(room.pot, room.me.chips);
+    raiseNumber.value = raiseRange.value = Math.min(room.pot, room.me.chips);
 });
 
-raiseNumber.addEventListener("input", () => {
+raiseNumber.addEventListener("change", () => {
     const num = parseInt(raiseNumber.value);
-    if (isNaN(num) || num < 1) {
-        raiseNumber.value = 1;
+    if (isNaN(num) || num <= room.bet) {
+        raiseNumber.value = room.bet + 1;
     }
     else if (num > room.me.chips) {
         raiseNumber.value = room.me.chips;
@@ -305,8 +306,16 @@ raiseNumber.addEventListener("input", () => {
     raiseRange.value = raiseNumber.value;
 });
 
+raiseNumber.addEventListener("input", () => {
+    const num = parseInt(raiseNumber.value);
+    if (num > room.me.chips) {
+        raiseNumber.value = room.me.chips;
+    }
+    raiseRange.value = raiseNumber.value;
+});
+
 raiseRange.addEventListener("input", () => {
-    raiseNumber.value = Math.min(raiseRange.value, room.me.chips);
+    raiseNumber.value = Math.max(room.bet + 1, Math.min(raiseRange.value, room.me.chips));
 });
 
 
@@ -353,7 +362,8 @@ function pushChat(player, content, color=null) {
     if (player !== null) {
         const playerSpan = document.createElement("span");
         li.appendChild(playerSpan);
-        playerSpan.textContent = `[${player}]`;
+        playerSpan.classList.add("poker_chat_sender");
+        playerSpan.textContent = player;
     }
 
     const contentSpan = document.createElement("span");
@@ -362,6 +372,27 @@ function pushChat(player, content, color=null) {
     if (color !== null) {
         contentSpan.style.color = color;
     }
+}
+
+/**
+ * @param {number} time 
+ */
+function setBlindTimer(time) {
+    if (blindTimerId !== null) {
+        clearInterval(blindTimerId);
+        blindTimerId = null;
+    }
+    blindTimer = Math.max(0, time);
+    if (blindTimer !== 0) {
+        blindTimerId = setInterval(() => {
+            if (--blindTimer == 0) {
+                clearInterval(blindTimerId);
+                blindTimerId = null;
+            }
+            remainingTimeDiv.textContent = `${Math.floor(blindTimer / 60).toString().padStart(2, "0")}:${(blindTimer % 60).toString().padStart(2, "0")}`;
+        }, 1000);
+    }
+    remainingTimeDiv.textContent = `${Math.floor(blindTimer / 60).toString().padStart(2, "0")}:${(blindTimer % 60).toString().padStart(2, "0")}`;
 }
 
 /**
@@ -375,6 +406,7 @@ export function pokerProcedure(message, data) {
     }
     switch (message) {
         case "ENTERED":
+            setBlindTimer(room.blindTimer);
             break;
         case "JOINED":
             pushChat(null, `${data.player} さんが入室しました`, "lightgreen");
@@ -391,5 +423,36 @@ export function pokerProcedure(message, data) {
             }
             break;
         }
+        case "STARTED":
+            showDialog("poker_dialog_start");
+            setTimeout(() => hideDialog(), 2000);
+            break;
+        case "BLIND":
+            setBlindTimer(room.blindInterval);
+            remainingTimeDiv.textContent = `${Math.floor(blindTimer / 60).toString().padStart(2, "0")}:${blindTimer % 60}`;
+            dialogBlindAnteSpan.textContent = room.ante;
+            dialogBlindSbSpan.textContent = room.ante * 2;
+            dialogBlindBbSpan.textContent = room.ante * 4;
+            showDialog("poker_dialog_blind");
+            setTimeout(() => hideDialog(), 2000);
+            break;
+        case "STEP":
+            break;
+        case "FLOP":
+            Array.from(communityCardsDiv.children).forEach(e => {
+                e.classList.add("hidden");
+                e.classList.remove("hidden");
+            });
+            break;
+        case "TURN":
+            communityCardsDiv.lastElementChild.classList.classList.add("hidden");
+            communityCardsDiv.lastElementChild.classList.classList.remove("hidden");
+            break;
+        case "RIVER":
+            communityCardsDiv.lastElementChild.classList.classList.add("hidden");
+            communityCardsDiv.lastElementChild.classList.classList.remove("hidden");
+            break;
+        case "SHOWDOWN":
+            break;
     }
 }

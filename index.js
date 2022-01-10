@@ -160,6 +160,10 @@ wsServer.on("connection", ws => {
                         room.connect(ws);
                     }
                     else {
+                        if (room.players.length === 10) {
+                            sendMessage(ws, "ERROR", "ルームが満員です");
+                            break;
+                        }
                         if (room.password !== null && entry.password !== room.password) {
                             sendMessage(ws, "ERROR", "パスワードが違います");
                             break;
