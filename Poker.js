@@ -12,8 +12,10 @@ class PokerPlayer {
         this.button = false;
         this.step = false;
         this.cheated = false;
+        this.folded = false;
         this.cards = [];
         this.rank = 0;
+        this.hand = null;
     }
     resetReentry() {
         this.reentry = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
@@ -28,8 +30,9 @@ class PokerPlayer {
             chips: this.chips,
             step: this.step,
             button: this.button,
-            cards: show ? this.cards : null,
+            cards: show && !this.folded ? this.cards : null,
             rank: this.rank,
+            folded: this.folded,
         };
     }
     getDetail() {
@@ -45,6 +48,7 @@ class PokerPlayer {
             cheated: this.cheated,
             cards: this.cards,
             rank: this.rank,
+            folded: this.folded,
         };
     }
 }
@@ -74,8 +78,12 @@ class PokerRoom {
         this.showdowning = false;
         this.blindTimer = 0;
         this.blindTimerId = null;
+        this.limitTimer = 0;
+        this.limitTimerId = null;
         this.step = -1;
+        this.remainingSteps = 0;
         this.button = -1;
+        this.playingButton = 0;
         this.stack = null;
     }
     empty() {
@@ -98,6 +106,7 @@ class PokerRoom {
             step: this.step,
             button: this.button,
             blindTimer: this.blindTimer,
+            limitTimer: this.limitTimer,
 
             me: player.getDetail(),
             players: this.players.map(e => e.getInfo(this.showdowning)),
@@ -134,6 +143,9 @@ class PokerRoom {
         }, 2000);
     }
     finish() {
+
+        this.broadcast("RESULT", {});
+
         this.started = false;
         this.cards = [];
         this.pot = 0;
@@ -141,7 +153,17 @@ class PokerRoom {
         this.bet = 0;
         this.showdowning = false;
         this.step = -1;
+        this.remainingSteps = 0;
         this.button = -1;
+        this.playingButton = 0;
+
+        if (this.blindTimerId !== null) {
+            clearInterval(this.blindTimerId);
+            this.blindTimerId = null;
+        }
+        this.blindTimer = 0;
+
+        this.playingPlayers = null;
         this.players.forEach(player => {
             if (!player.online) {
                 this.players.splice(this.players.indexOf(player), 1);
@@ -155,12 +177,32 @@ class PokerRoom {
             player.step = false;
             player.cheated = false;
             player.cards = [];
+            player.rank = 0;
+            player.folded = false;
+            player.hand = null;
         });
+
+        this.broadcast("FINISHED", {});
     }
     preflop() {
         this.dealStack();
         this.cards = [];
+        if (this.playingPlayers !== null) {
+            this.playingPlayers.filter(e => e.chips === 0).forEach((player, _, lostPlayers) => {
+                player.rank = this.playingPlayers.length - lostPlayers.length + 1;
+            });
+        }
         this.playingPlayers = this.players.filter(e => e.chips > 0);
+        if (this.playingPlayers.length <= 1) {
+            this.finish();
+            return;
+        }
+        this.playingPlayers.forEach(player => {
+            player.bet = 0;
+            player.state = "";
+            player.folded = false;
+            player.hand = null;
+        });
         if (this.button !== -1) {
             this.players[this.button].button = false;
         }
@@ -170,13 +212,14 @@ class PokerRoom {
         }
         while (this.players[this.button].chips === 0);
         this.players[this.button].button = true;
-        const playingButton = this.playingPlayers.findIndex(e => e.button);
-        this.step = (playingButton + (this.playingPlayers.length === 2 ? 0 : 3)) % this.playingPlayers.length;
-        this.playingPlayers[this.step].step = true;
+        this.playingButton = this.playingPlayers.findIndex(e => e.button);
+        this.remainingSteps = this.playingPlayers.length;
+        this.showdowning = false;
         if (this.blindTimer === 0) {
             this.raiseBlind();
         }
         setTimeout(() => {
+            this.pot = 0;
             this.playingPlayers.forEach(player => {
                 player.cards = this.stack.splice(0, 2);
                 if (player.chips < this.ante) {
@@ -186,9 +229,10 @@ class PokerRoom {
                 }
                 this.pot += this.ante;
                 player.chips -= this.ante;
+                player.cheated = false;
             });
-            const sbPlayer = this.playingPlayers[(playingButton + (this.playingPlayers.length === 2 ? 0 : 1)) % this.playingPlayers.length];
-            const bbPlayer = this.playingPlayers[(playingButton + (this.playingPlayers.length === 2 ? 1 : 2)) % this.playingPlayers.length];
+            const sbPlayer = this.playingPlayers[(this.playingButton + (this.playingPlayers.length === 2 ? 0 : 1)) % this.playingPlayers.length];
+            const bbPlayer = this.playingPlayers[(this.playingButton + (this.playingPlayers.length === 2 ? 1 : 2)) % this.playingPlayers.length];
             if (sbPlayer.chips < this.ante * 2) {
                 sbPlayer.bet = sbPlayer.chips;
                 sbPlayer.chips = 0;
@@ -207,30 +251,171 @@ class PokerRoom {
                 bbPlayer.chips -= this.ante * 4;
             }
             this.pot += bbPlayer.bet;
-            this.bet += this.ante * 4;
+            this.bet = this.ante * 4;
             this.broadcast("PREFLOP", {});
+            setTimeout(() => {
+                this.step = (this.playingButton + (this.playingPlayers.length === 2 ? 1 : 2)) % this.playingPlayers.length;
+                this.nextStep();
+            }, 1000);
         }, 2000);
     }
     flop() {
         this.cards.push(...this.stack.splice(0, 3));
         this.broadcast("FLOP", {});
+        setTimeout(() => this.nextStep(), 1000);
     }
     turn() {
         this.cards.push(this.stack.shift());
         this.broadcast("TURN", {});
+        setTimeout(() => this.nextStep(), 1000);
     }
     river() {
         this.cards.push(this.stack.shift());
         this.broadcast("RIVER", {});
+        setTimeout(() => this.nextStep(), 1000);
     }
     showdown() {
         this.showdowning = true;
+        this.broadcast("SHOWDOWN", {});
 
-        this.showdowning = false;
+        // 役の処理
+
+        setTimeout(() => this.win([]), 1000);
+    }
+    win(players) {
+        const chips = Math.floor(this.pot / players.length);
+
+        this.broadcast("WIN", { players: players.map(e => { return { name: e.name, hand: e.hand }; }) });
+        setTimeout(() => {
+            this.preflop();
+        }, 5000);
     }
     nextStep() {
-        this.players[this.step].step = false;
-        
+        this.playingPlayers[this.step].step = false;
+        if (this.playingPlayers.filter(e => !e.folded && e.chips > 0) <= 1) {
+            this.showdowning = true;
+        }
+        if (!this.showdowning) do {
+            this.step++;
+            this.step %= this.playingPlayers.length;
+            if (this.remainingSteps >= 0) this.remainingSteps--;
+        }
+        while (this.playingPlayers[this.step].chips === 0 || this.playingPlayers[this.step].folded);
+        const player = this.playingPlayers[this.step];
+        const otherPlayers = this.playingPlayers.filter(e => e !== player);
+        if (otherPlayers.every(e => e.folded)) {
+            this.win([player]);
+            return;
+        }
+        if (this.showdowning || this.remainingSteps < 0 && player.bet === this.bet) {
+            this.playingPlayers.forEach(player => {
+                player.bet = 0;
+                player.state = "";
+            });
+            this.bet = 0;
+            this.remainingSteps = this.playingPlayers.length;
+            this.step = this.playingButton;
+            switch (this.cards.length) {
+                case 0:
+                    this.flop();
+                    break;
+                case 3:
+                    this.turn();
+                    break;
+                case 4:
+                    this.river();
+                    break;
+                case 5:
+                    this.showdown();
+                    break;
+            }
+            return;
+        }
+        player.step = true;
+        player.state = "";
+        if (!player.online) {
+            this.defaultAction(player);
+            return;
+        }
+        this.limitTimer = this.waitingTime;
+        this.limitTimerId = setInterval(() => {
+            if (--this.limitTimer == 0) {
+                clearInterval(this.limitTimerId);
+                this.limitTimerId = null;
+                this.defaultAction(player);
+            }
+        }, 1000);
+        this.broadcast("STEP", { player: player.name });
+    }
+    action() {
+        if (this.limitTimerId !== null) {
+            clearInterval(this.limitTimerId);
+            this.limitTimerId = null;
+        }
+        this.nextStep();
+    }
+    defaultAction(player) {
+        if (!player.step) return;
+        if (player.cheated && this.bet > 0) {
+            this.call(player);
+        }
+        else {
+            this.checkFold(player);
+        }
+    }
+    checkFold(player) {
+        if (!player.step) return;
+        if (player.cheated && this.bet > player.bet) {
+            send(player.ws, "ERROR", "チートを使用したため、フォールドすることは出来ません");
+            return;
+        }
+        player.state = this.bet > player.bet ? "フォールド" : "チェック";
+        if (this.bet > player.bet) {
+            player.folded = true;
+        }
+        player.step = false;
+        this.action();
+    }
+    allIn(player) {
+        player.bet += player.chips;
+        player.chips = 0;
+        this.bet = Math.max(this.bet, player.bet);
+        this.pot += player.chips;
+        player.state = "ALL IN";
+        this.broadcast("ALLIN", { player: player.name });
+    }
+    call(player) {
+        if (!player.step) return;
+        if (player.bet + player.chips < this.bet) {
+            this.allIn(player);
+        }
+        else {
+            this.pot += this.bet - player.bet;
+            player.bet = this.bet;
+            player.chips -= this.bet;
+            player.state = "コール";
+        }
+        player.step = false;
+        this.action();
+    }
+    raise(player, chips) {
+        if (!player.step) return;
+        if (player.bet + chips < this.bet || chips > player.chips) {
+            send(player.ws, "ERROR", "レイズ額が不正です");
+            return;
+        }
+        if (chips === player.chips) {
+            this.allIn(player);
+        }
+        else {
+            player.state = this.bet === 0 ? "ベット" : "レイズ";
+            player.bet += chips;
+            player.chips -= chips;
+            this.bet = player.bet;
+            this.pot += chips;
+        }
+        player.step = false;
+        this.action();
     }
     connect(ws) {
         const player = this.players.find(e => e.ws === ws);
@@ -248,7 +433,7 @@ class PokerRoom {
         player.online = false;
         this.broadcast("DISCONNECTED", { player: player.name });
         if (player.turn) {
-            this.procedure(player.ws, "CHECK_FOLD", {});
+            this.defaultAction(player);
         }
     }
     join(name, ws) {
@@ -295,10 +480,22 @@ class PokerRoom {
                 this.broadcast("READIED", { player: player.name });
                 break;
             case "CHECK_FOLD":
+                this.checkFold(player);
                 break;
-            case "BET_CALL":
+            case "CALL":
+                this.call(player);
                 break;
             case "RAISE":
+                this.raise(player, data.chips);
+                break;
+            case "CHEAT":
+                if (player.cheated || this.cards.length > 0 || player.cards.length == 0) break;
+                if (data.index != 0 && data.index != 1) break;
+                if (!["spade", "club", "diamond", "heart"].includes(data.suit)) break;
+                if (data.number < 1 || data.number > 13) break;
+                player.cards[data.index] = { suit: data.suit, number: data.number };
+                player.cheated = true;
+                send(ws, "CHEATED", { room: this.getInfo(player), index: data.index });
                 break;
         }
     }

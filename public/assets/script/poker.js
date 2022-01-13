@@ -17,7 +17,7 @@ const blindTextDiv = document.getElementById("poker_blind_text");
 const blindNumberDiv = document.getElementById("poker_blind_number");
 const communityCardsDiv = document.getElementById("poker_community_cards");
 const potDiv = document.getElementById("poker_pot");
-const potTextDiv = document.getElementById("poker_pot_text");
+//const potTextDiv = document.getElementById("poker_pot_text");
 const potNumberDiv = document.getElementById("poker_pot_number");
 
 const holeCardsDiv = document.getElementById("poker_hole_cards");
@@ -41,6 +41,7 @@ const dialogLeaveRoomSpan = document.getElementById("poker_dialog_leave_room");
 const dialogLeaveOkButton = document.getElementById("poker_dialog_leave_ok");
 
 const dialogNocheatOkButton = document.getElementById("poker_dialog_nocheat_ok");
+const dialogNofoldOkButton = document.getElementById("poker_dialog_nofold_ok");
 
 const dialogBlindAnteSpan = document.getElementById("poker_dialog_blind_ante");
 const dialogBlindSbSpan = document.getElementById("poker_dialog_blind_sb");
@@ -52,7 +53,7 @@ let blindTimerId = null;
 let limitTimer = 0;
 let limitTimerId = null;
 const suits = ["spade", "club", "diamond", "heart"];
-const cardNumbers = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+const cardNumbers = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
 function clearChildren(element) {
     while (element.firstChild !== null) {
@@ -65,15 +66,19 @@ function ready() {
 }
 
 function checkFold() {
+    if (room.bet > room.me.bet && room.me.cheated) {
+        showDialog("poker_dialog_nofold");
+        return;
+    }
     sendMessage("CHECK_FOLD", {});
 }
 
-function betCall() {
-    sendMessage("BET_CALL", {});
+function call() {
+    sendMessage("CALL", {});
 }
 
-function raise() {
-    sendMessage("RAISE", { chips: parseInt(raiseNumber.textContent) });
+function betRaise() {
+    sendMessage("RAISE", { chips: parseInt(raiseNumber.value) });
 }
 
 /** @type {HTMLDivElement} */
@@ -86,6 +91,27 @@ function openCheatcards() {
     }
     cheatcardsDiv.classList.toggle("hidden");
     if (cheatcardsDiv.classList.contains("hidden")) {
+        if (activeCheatcard !== null) {
+            activeCheatcard.classList.remove("glow");
+            activeCheatcard = null;
+            holeCardsDiv.classList.remove("glow");
+        }
+    }
+}
+
+/**
+ * @param {number} i 
+ * @returns {(e: MouseEvent) => void}
+ */
+function cheat(i) {
+    return e => {
+        if (activeCheatcard === null) return;
+        sendMessage("CHEAT", {
+            index: i,
+            suit: suits[activeCheatcard.id.slice("poker_cheatcard_".length, "poker_cheatcard_0".length)],
+            number: parseInt(activeCheatcard.id.slice("poker_cheatcard_0_".length, "poker_cheatcard_0_00".length)),
+        });
+        cheatcardsDiv.classList.add("hidden");
         if (activeCheatcard !== null) {
             activeCheatcard.classList.remove("glow");
             activeCheatcard = null;
@@ -118,7 +144,7 @@ function update(roomInfo) {
             const numberSpan = document.createElement("span");
             cardDiv.appendChild(numberSpan);
             numberSpan.classList.add("poker_card_number", card.suit);
-            numberSpan.textContent = card.number === 1 ? cardNumbers[0] : cardNumbers[14 - card.number];
+            numberSpan.textContent = cardNumbers[card.number - 1];
         };
     };
 
@@ -143,6 +169,9 @@ function update(roomInfo) {
         else if (player.state.length === 0) {
             stateDiv.textContent = "no state";
             stateDiv.classList.add("hidden");
+        }
+        else if (player.folded) {
+            stateDiv.textContent = "フォールド";
         }
         else {
             stateDiv.textContent = player.state;
@@ -194,6 +223,7 @@ function update(roomInfo) {
     potNumberDiv.textContent = room.pot;
 
     room.me.cards.forEach(addCard(holeCardsDiv));
+    Array.from(holeCardsDiv.children).forEach((e, i) => e.addEventListener("click", cheat(i)));
 
     myStateDiv.textContent = room.me.state.length === 0 ? "no state" : room.me.state;
     myStateDiv.classList.toggle("hidden", room.me.state.length === 0);
@@ -206,15 +236,16 @@ function update(roomInfo) {
 
     if (room.started) {
         if (room.me.step) {
-            checkButton.textContent = room.bet === 0 ? "チェック" : "フォールド";
+            checkButton.textContent = room.bet === room.me.bet ? "チェック" : "フォールド";
             checkButton.classList.remove("hidden");
             checkButton.onclick = checkFold;
-            callButton.textContent = "";
-            callButton.classList.remove("hidden", "glow");
-            callButton.onclick = null;
-            raiseButton.textContent = "";
+            callButton.textContent = "コール";
+            callButton.classList.remove("glow");
+            callButton.classList.toggle("hidden", room.bet === room.me.bet);
+            callButton.onclick = room.bet === room.me.bet ? null : call;
+            raiseButton.textContent = room.bet === 0 ? "ベット" : "レイズ";
             raiseButton.classList.remove("hidden");
-            raiseButton.onclick = null;
+            raiseButton.onclick = betRaise;
         }
         else {
             checkButton.textContent = "";
@@ -243,14 +274,14 @@ function update(roomInfo) {
     }
     
     raiseInputs.classList.toggle("hidden", !room.me.step);
-    raiseNumber.value = Math.min(room.me.chips, room.bet + room.ante * 4);
-    raiseRange.value = Math.min(room.me.chips, room.bet + room.ante * 4);
-    raiseRange.min = Math.floor((room.bet + 1) / 100) * 100;
+    raiseNumber.value = Math.min(room.me.chips, Math.max(room.ante * 4, room.bet * 2 - room.me.bet));
+    raiseRange.min = Math.floor((room.bet - room.me.bet + 1) / 100) * 100;
     raiseRange.max = Math.ceil(room.me.chips / 100) * 100;
+    raiseRange.value = raiseNumber.value;
 
-    cheatButton.classList.toggle("hidden", !room.started || !room.cheat || room.me.chips === 0);
+    cheatButton.classList.toggle("hidden", !room.started || !room.cheat || room.me.chips === 0 || room.me.folded);
     cheatButton.onclick = !room.started || !room.cheat ? null : openCheatcards;
-    cheatcardsDiv.classList.toggle("nodisplay", !room.started || !room.cheat || room.me.chips === 0);
+    cheatcardsDiv.classList.toggle("nodisplay", !room.started || !room.cheat || room.me.chips === 0 || room.me.folded || room.me.cheated || room.cards.length > 0);
 }
 
 leaveButton.addEventListener("click", () => {
@@ -264,6 +295,7 @@ dialogLeaveOkButton.addEventListener("click", () => {
 });
 
 dialogNocheatOkButton.addEventListener("click", hideDialog);
+dialogNofoldOkButton.addEventListener("click", hideDialog);
 
 openChatButton.addEventListener("click", () => {
     chatDiv.classList.toggle("open");
@@ -294,8 +326,8 @@ potDiv.addEventListener("click", () => {
 
 raiseNumber.addEventListener("change", () => {
     const num = parseInt(raiseNumber.value);
-    if (isNaN(num) || num <= room.bet) {
-        raiseNumber.value = room.bet + 1;
+    if (isNaN(num) || num < room.bet - room.me.bet + 1) {
+        raiseNumber.value = room.bet - room.me.bet + 1;
     }
     else if (num > room.me.chips) {
         raiseNumber.value = room.me.chips;
@@ -315,17 +347,17 @@ raiseNumber.addEventListener("input", () => {
 });
 
 raiseRange.addEventListener("input", () => {
-    raiseNumber.value = Math.max(room.bet + 1, Math.min(raiseRange.value, room.me.chips));
+    raiseNumber.value = Math.max(room.bet - room.me.bet + 1, Math.min(room.me.chips, raiseRange.value));
 });
 
 
 (function () {
-    suits.forEach(suit => {
-        cardNumbers.forEach(num => {
+    suits.forEach((suit, suitIndex) => {
+        [[0, cardNumbers[0]], ...[...cardNumbers.entries()].slice(1).reverse()].forEach(([numIndex, num]) => {
             const card = document.createElement("div");
             cheatcardsGridDiv.appendChild(card);
             card.classList.add("poker_card");
-            card.id = `poker_cheatcard_${suit}_${num}`;
+            card.id = `poker_cheatcard_${suitIndex}_${(numIndex + 1).toString().padStart(2, "0")}`;
             card.addEventListener("click", () => {
                 if (activeCheatcard === card) {
                     activeCheatcard = null;
@@ -401,12 +433,24 @@ function setBlindTimer(time) {
  * @param {any} data メッセージの内容
  */
 export function pokerProcedure(message, data) {
-    if ("room" in data) {
+    if (data instanceof Object && "room" in data) {
         update(data.room);
     }
     switch (message) {
         case "ENTERED":
+            clearChildren(chatList);
             setBlindTimer(room.blindTimer);
+            if (room.me.turn) {
+                limitTimer = room.limitTimer;
+                limitTimerId = setInterval(() => {
+                    if (--limitTimer == 0) {
+                        clearInterval(limitTimerId);
+                        limitTimerId = null;
+                    }
+                    myTimelimitDiv.textContent = limitTimer;
+                }, 1000);
+                myTimelimitDiv.textContent = limitTimer;
+            }
             break;
         case "JOINED":
             pushChat(null, `${data.player} さんが入室しました`, "lightgreen");
@@ -427,32 +471,63 @@ export function pokerProcedure(message, data) {
             showDialog("poker_dialog_start");
             setTimeout(() => hideDialog(), 2000);
             break;
+        case "FINISHED":
+            setBlindTimer(0);
+            break;
         case "BLIND":
             setBlindTimer(room.blindInterval);
-            remainingTimeDiv.textContent = `${Math.floor(blindTimer / 60).toString().padStart(2, "0")}:${blindTimer % 60}`;
             dialogBlindAnteSpan.textContent = room.ante;
             dialogBlindSbSpan.textContent = room.ante * 2;
             dialogBlindBbSpan.textContent = room.ante * 4;
             showDialog("poker_dialog_blind");
             setTimeout(() => hideDialog(), 2000);
             break;
+        case "RESULT":
+            //showDialog("");
+            break;
         case "STEP":
+            if (!room.me.step) break;
+            if (limitTimerId !== null) {
+                clearInterval(limitTimerId);
+                limitTimerId = null;
+            }
+            limitTimer = room.waitingTime;
+            limitTimerId = setInterval(() => {
+                if (--limitTimer == 0) {
+                    clearInterval(limitTimerId);
+                    limitTimerId = null;
+                }
+                myTimelimitDiv.textContent = limitTimer;
+            }, 1000);
+            myTimelimitDiv.textContent = limitTimer;
+            break;
+        case "PREFLOP":
+            Array.from(holeCardsDiv.children).forEach(e => {
+                e.classList.add("hidden");
+                setTimeout(() => e.classList.remove("hidden"), 10);
+            });
             break;
         case "FLOP":
             Array.from(communityCardsDiv.children).forEach(e => {
                 e.classList.add("hidden");
-                e.classList.remove("hidden");
+                setTimeout(() => e.classList.remove("hidden"), 10);
             });
             break;
         case "TURN":
-            communityCardsDiv.lastElementChild.classList.classList.add("hidden");
-            communityCardsDiv.lastElementChild.classList.classList.remove("hidden");
+            communityCardsDiv.lastElementChild.classList.add("hidden");
+            setTimeout(() => communityCardsDiv.lastElementChild.classList.remove("hidden"), 10);
             break;
         case "RIVER":
-            communityCardsDiv.lastElementChild.classList.classList.add("hidden");
-            communityCardsDiv.lastElementChild.classList.classList.remove("hidden");
+            communityCardsDiv.lastElementChild.classList.add("hidden");
+            setTimeout(() => communityCardsDiv.lastElementChild.classList.remove("hidden"), 10);
             break;
         case "SHOWDOWN":
+            break;
+        case "CHEATED":
+            if (holeCardsDiv.children !== null) {
+                holeCardsDiv.children[data.index].classList.add("hidden");
+                setTimeout(() => holeCardsDiv.children[data.index].classList.remove("hidden"), 10);
+            }
             break;
     }
 }

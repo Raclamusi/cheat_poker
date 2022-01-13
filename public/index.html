@@ -160,7 +160,7 @@
                     <div id="poker_raise_inputs" class="poker_operations_raise">
                         <span>レイズ額</span>
                         <input id="poker_raise_number" class="poker_operations_number" type="number" value="100">
-                        <input id="poker_raise_range" class="poker_operations_range" type="range" min="100" max="10000" step="100" value="100">
+                        <input id="poker_raise_range" class="poker_operations_range" type="range" min="0" max="10000" step="100" value="100">
                     </div>
                     <button id="poker_operations_cheat" class="poker_operations_button">チート</button>
                 </div>
@@ -181,6 +181,12 @@
             <p>チートは、カードが3枚出されるまでに一度だけ使えます</p>
             <div class="common_dialog_buttons">
                 <button id="poker_dialog_nocheat_ok" class="common_button">OK</button>
+            </div>
+        </div>
+        <div id="poker_dialog_nofold" class="common_dialog">
+            <p>チートを使用したため、フォールドすることは出来ません</p>
+            <div class="common_dialog_buttons">
+                <button id="poker_dialog_nofold_ok" class="common_button">OK</button>
             </div>
         </div>
         <div id="poker_dialog_start" class="common_dialog">

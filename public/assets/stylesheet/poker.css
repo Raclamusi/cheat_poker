@@ -131,6 +131,7 @@
 .poker_table_community {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    width: 8rem;
     font-size: 0.7rem;
 }
 
@@ -356,7 +357,7 @@
     font-weight: bold;
     background-color: white;
     border-radius: 0.2em;
-    transition-property: margin-top, opacity;
+    transition-property: transform, opacity;
     transition-duration: 500ms;
 }
 
@@ -372,7 +373,7 @@
 }
 
 .poker_card.hidden {
-    margin-top: -1rem;
+    transform: translateY(-1rem);
     opacity: 0;
     transition: none;
 }
