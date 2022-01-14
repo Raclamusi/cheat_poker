@@ -364,6 +364,11 @@ class PokerRoom {
             this.blindTimerId = null;
         }
         this.blindTimer = 0;
+        if (this.limitTimerId !== null) {
+            clearInterval(this.limitTimerId);
+            this.limitTimerId = null;
+        }
+        this.limitTimer = 0;
 
         this.playingPlayers = null;
         this.players.forEach(player => {

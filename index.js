@@ -18,6 +18,10 @@ const rooms = new Map();
 /** @type {Map<WebSocket, number>} */
 const wsRoomMap = new Map();
 
+/** @type {Map<WebSocket, NodeJS.Timer>} */
+const wsIntervalMap = new Map();
+
+
 /**
  * @param {WebSocket} ws 
  * @param {string} message 
@@ -51,12 +55,15 @@ function updateRooms() {
 wsServer.on("connection", ws => {
     ws.on("close", code => {
         console.log(`[close] ${code}`);
+        clearInterval(wsIntervalMap.get(ws));
+        wsIntervalMap.delete(ws);
         if (!wsRoomMap.has(ws)) return;
         const id = wsRoomMap.get(ws);
         if (!rooms.has(id)) return;
         const room = rooms.get(id);
         if (room.exist(ws)) room.disconnect(ws);
         if (room.empty()) {
+            room.finish();
             rooms.delete(id);
             wsRoomMap.forEach((v, k, m) => {
                 if (v === id) m.delete(k);
@@ -204,8 +211,7 @@ wsServer.on("connection", ws => {
     });
 
     console.log("[open]");
+    // heroku のスリープ対策
+    wsIntervalMap.set(ws, setInterval(() => sendMessage(ws, "ROUTINE", {}), 30000));
     updateRooms();
 });
-
-// heroku のスリープ対策
-setInterval(() => broadcastMessage("ROUTINE", {}), 30000);
