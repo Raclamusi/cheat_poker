@@ -537,11 +537,9 @@ class PokerRoom {
     }
     nextStep() {
         this.playingPlayers[this.step].step = false;
-        {
-            const players = this.playingPlayers.filter(e => !e.folded && e.chips > 0);
-            if (players.length <= 1 && players.every(e => e.bet === this.bet)) {
-                this.showdowning = true;
-            }
+        const notFoldingplayers = this.playingPlayers.filter(e => !e.folded && e.chips > 0);
+        if (notFoldingplayers.length === 0) {
+            this.showdowning = true;
         }
         if (!this.showdowning) do {
             this.step++;
@@ -549,6 +547,9 @@ class PokerRoom {
             if (this.remainingSteps >= 0) this.remainingSteps--;
         }
         while (this.playingPlayers[this.step].chips === 0 || this.playingPlayers[this.step].folded);
+        if (notFoldingplayers.length === 1 && notFoldingplayers[0].bet === this.bet) {
+            this.showdowning = true;
+        }
         const player = this.playingPlayers[this.step];
         const otherPlayers = this.playingPlayers.filter(e => e !== player);
         if (otherPlayers.every(e => e.folded)) {
