@@ -208,3 +208,6 @@ wsServer.on("connection", ws => {
     console.log("[open]");
     updateRooms();
 });
+
+// heroku のスリープ対策
+setInterval(() => broadcastMessage("ROUTINE", {}), 30000);
