@@ -47,6 +47,9 @@ const dialogBlindAnteSpan = document.getElementById("poker_dialog_blind_ante");
 const dialogBlindSbSpan = document.getElementById("poker_dialog_blind_sb");
 const dialogBlindBbSpan = document.getElementById("poker_dialog_blind_bb");
 
+const dialogWinnerDiv = document.getElementById("poker_dialog_winner");
+const dialogResultList = document.getElementById("poker_dialog_result_list");
+
 let room = null;
 let blindTimer = 0;
 let blindTimerId = null;
@@ -120,6 +123,30 @@ function cheat(i) {
     }
 }
 
+/**
+ * @param {HTMLElement} element 
+ * @returns {(card: { suit: string; number: number; glow?: boolean; }) => void}
+ */
+function addCard(element) {
+    clearChildren(element);
+    return (card) => {
+        const cardDiv = document.createElement("div");
+        element.appendChild(cardDiv);
+        cardDiv.classList.add("poker_card");
+        if (card === null) {
+            cardDiv.classList.add("back");
+            return;
+        }
+        if ("glow" in card && card.glow) {
+            cardDiv.classList.add("glow");
+        }
+        const numberSpan = document.createElement("span");
+        cardDiv.appendChild(numberSpan);
+        numberSpan.classList.add("poker_card_number", card.suit);
+        numberSpan.textContent = cardNumbers[card.number - 1];
+    };
+}
+
 function update(roomInfo) {
     room = roomInfo;
 
@@ -130,23 +157,6 @@ function update(roomInfo) {
     const players = room.started ? room.players.filter(e => e.ready) : room.players;
     const meIndex = players.findIndex(e => e.name === room.me.name);
     players.unshift(...players.splice(meIndex === -1 ? 0 : meIndex));
-
-    const addCard = element => {
-        clearChildren(element);
-        return (card) => {
-            const cardDiv = document.createElement("div");
-            element.appendChild(cardDiv);
-            cardDiv.classList.add("poker_card");
-            if (card === null) {
-                cardDiv.classList.add("back");
-                return;
-            }
-            const numberSpan = document.createElement("span");
-            cardDiv.appendChild(numberSpan);
-            numberSpan.classList.add("poker_card_number", card.suit);
-            numberSpan.textContent = cardNumbers[card.number - 1];
-        };
-    };
 
     const addPlayer = i => player => {
         const playerDiv = document.createElement("div");
@@ -175,6 +185,9 @@ function update(roomInfo) {
         }
         else {
             stateDiv.textContent = player.state;
+            if (player.state === "WIN") {
+                stateDiv.classList.add("glow");
+            }
         }
 
         const betDiv = document.createElement("div");
@@ -227,6 +240,7 @@ function update(roomInfo) {
 
     myStateDiv.textContent = room.me.state.length === 0 ? "no state" : room.me.state;
     myStateDiv.classList.toggle("hidden", room.me.state.length === 0);
+    myStateDiv.classList.toggle("glow", room.me.state === "WIN");
     myBetDiv.textContent = room.me.bet;
     myBetDiv.classList.toggle("hidden", room.me.bet === 0);
     myChipsDiv.textContent = room.me.chips;
@@ -483,7 +497,53 @@ export function pokerProcedure(message, data) {
             setTimeout(() => hideDialog(), 2000);
             break;
         case "RESULT":
-            //showDialog("");
+            clearChildren(dialogResultList);
+            [...room.players].sort((p1, p2) => p1.rank - p2.rank).forEach(player => {
+                const li = document.createElement("li");
+                dialogResultList.appendChild(li);
+
+                const rankSpan = document.createElement("span");
+                li.appendChild(rankSpan);
+                rankSpan.classList.add("poker_dialog_result_rank");
+                rankSpan.textContent = `${player.rank}位`;
+
+                const nameSpan = document.createElement("span");
+                li.appendChild(nameSpan);
+                nameSpan.classList.add("poker_dialog_result_name");
+                nameSpan.textContent = player.name;
+            });
+            showDialog("poker_dialog_result");
+            break;
+        case "WINNER":
+            clearChildren(dialogWinnerDiv);
+            if (!room.showdowning) {
+                dialogWinnerDiv.textContent = `${data.players[0]?.name} win`;
+                break;
+            }
+            data.players.forEach(player => {
+                const playerDiv = document.createElement("div");
+                dialogWinnerDiv.appendChild(playerDiv);
+                playerDiv.classList.add("poker_dialog_winner_player");
+                playerDiv.textContent = player.name;
+
+                const handDiv = document.createElement("div");
+                dialogWinnerDiv.appendChild(handDiv);
+                handDiv.classList.add("poker_dialog_winner_hand");
+                handDiv.textContent = player.hand.name;
+
+                const cardsDiv = document.createElement("div");
+                dialogWinnerDiv.appendChild(cardsDiv);
+                cardsDiv.classList.add("poker_dialog_winner_cards");
+                player.hand.cards.forEach(addCard(cardsDiv));
+            });
+            if (data.players.length === 0) {
+                const div = document.createElement("div");
+                dialogWinnerDiv.appendChild(div);
+                div.classList.add("poker_dialog_winner_nothing")
+                div.textContent = "勝者なし！";
+            }
+            showDialog("poker_dialog_winner");
+            setTimeout(() => hideDialog(), 8000);
             break;
         case "STEP":
             if (!room.me.step) break;

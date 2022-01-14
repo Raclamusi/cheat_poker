@@ -12,6 +12,7 @@ class PokerPlayer {
         this.button = false;
         this.step = false;
         this.cheated = false;
+        this.cheatedIndex = -1;
         this.folded = false;
         this.cards = [];
         this.rank = 0;
@@ -53,9 +54,219 @@ class PokerPlayer {
     }
 }
 
+
+
+const pokerSuits = ["spade", "club", "diamond", "heart"];
+
+const pokerHands = [
+	{
+		name: "ロイヤルフラッシュ",
+		fit: function (cards) {
+            const suitedCards = pokerSuits.map(suit => cards.filter(e => e.suit === suit)).find(e => e.length >= 5)?.slice(0, 5);
+            if (suitedCards !== undefined && suitedCards.every((e, i) => e.number === [1, 13, 12, 11, 10][i])) {
+                return suitedCards;
+            }
+            return null;
+		},
+	},
+	{
+		name: "ストレートフラッシュ",
+		fit: function (cards) {
+			const suitedCards = pokerSuits.map(suit => cards.filter(e => e.suit === suit)).find(e => e.length >= 5);
+            if (suitedCards === undefined) return null;
+            let indices = [0];
+            for (let i = 1; i < suitedCards.length; ++i) {
+                if (suitedCards.length - i < 5 - indices.length) break;
+                if (suitedCards[i].number === suitedCards[i - 1].number) continue;
+                if (suitedCards[i].number === suitedCards[i - 1].number - 1) {
+                    indices.push(i);
+                    if (indices.length === 5) {
+                        return indices.map(index => suitedCards[index]);
+                    }
+                    continue;
+                }
+                indices = [i];
+            }
+            return null;
+		},
+	},
+	{
+		name: "フォーカード",
+		fit: function (cards) {
+			for (let i = 0; i < cards.length - 3; ++i) {
+                if (cards[i].number !== cards[i + 1].number || cards[i].number !== cards[i + 2].number || cards[i].number !== cards[i + 3].number) continue;
+                return [...cards.slice(i, i + 4), cards[i > 0 ? 0 : 4]];
+            }
+            return null;
+		},
+	},
+	{
+		name: "フルハウス",
+		fit: function (cards) {
+			for (let i = 0; i < cards.length - 2; ++i) {
+                if (cards[i].number !== cards[i + 1].number || cards[i].number !== cards[i + 2].number) continue;
+                for (let j = 0; j < cards.length - 1; ++j) {
+                    if (cards[j].number !== cards[j + 1].number) continue;
+                    return [cards[i], cards[i + 1], cards[i + 2], cards[j], cards[j + 1]];
+                }
+            }
+            return null;
+		},
+	},
+	{
+		name: "フラッシュ",
+		fit: function (cards) {
+            const suitedCards = pokerSuits.map(suit => cards.filter(e => e.suit === suit)).find(e => e.length >= 5);
+            return suitedCards === undefined ? null : suitedCards.slice(0, 5);
+		},
+	},
+	{
+		name: "ストレート",
+		fit: function (cards) {
+            let indices = [0];
+			for (let i = 1; i < cards.length; ++i) {
+                if (cards.length - i < 5 - indices.length) break;
+                if (cards[i].number === cards[i - 1].number) continue;
+                if (cards[i].number === cards[i - 1].number - 1 || indices.length === 1 && cards[i - 1].number === 1 && cards[i].number === 13) {
+                    indices.push(i);
+                    if (indices.length === 5) {
+                        return indices.map(index => cards[index]);
+                    }
+                    continue;
+                }
+                indices = [i];
+            }
+            return null;
+		},
+	},
+	{
+		name: "スリーカード",
+		fit: function (cards) {
+			for (let i = 0; i < cards.length - 2; ++i) {
+                if (cards[i].number !== cards[i + 1].number || cards[i].number !== cards[i + 2].number) continue;
+                return [cards[i], cards[i + 1], cards[i + 2], ...cards.slice(0, i), ...cards.slice(i + 3)].slice(0, 5);
+            }
+            return null;
+		},
+	},
+	{
+		name: "ツーペア",
+		fit: function (cards) {
+			for (let i = 0; i < cards.length - 3; ++i) {
+                if (cards[i].number !== cards[i + 1].number) continue;
+                for (let j = i + 2; j < cards.length - 1; ++j) {
+                    if (cards[j].number !== cards[j + 1].number) continue;
+                    return [cards[i], cards[i + 1], cards[j], cards[j + 1], cards[i > 0 ? 0 : j > 2 ? 2 : 4]];
+                }
+            }
+            return null;
+		},
+	},
+	{
+		name: "ワンペア",
+		fit: function (cards) {
+			for (let i = 0; i < cards.length - 1; ++i) {
+                if (cards[i].number !== cards[i + 1].number) continue;
+                return [cards[i], cards[i + 1], ...cards.slice(0, i), ...cards.slice(i + 2)].slice(0, 5);
+            }
+            return null;
+		},
+	},
+	{
+		name: "ハイカード",
+		fit: function (cards) {
+			return cards.slice(0, 5);
+		},
+	},
+];
+
+function findHand(cards) {
+	cards.sort((c1, c2) => (c2.number + 11) % 13 - (c1.number + 11) % 13 || pokerSuits.indexOf(c1.suit) - pokerSuits.indexOf(c2.suit));
+	for (let i = 0; i < pokerHands.length; ++i) {
+		const fitCards = pokerHands[i].fit(cards);
+		if (fitCards !== null) {
+			return { name: pokerHands[i].name, rank: i, cards: fitCards };
+		}
+	}
+	return null;
+}
+
+/*
+console.log("Poker Hand Debug");
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[0],number: 12},{suit:pokerSuits[0],number: 10},{suit:pokerSuits[0],number: 8},{suit:pokerSuits[1],number: 6},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[1],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[1],number: 1},{suit:pokerSuits[0],number: 10},{suit:pokerSuits[0],number: 8},{suit:pokerSuits[1],number: 6},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[1],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[1],number: 1},{suit:pokerSuits[0],number: 10},{suit:pokerSuits[1],number: 10},{suit:pokerSuits[1],number: 6},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[2],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[1],number: 1},{suit:pokerSuits[2],number: 1},{suit:pokerSuits[0],number: 8},{suit:pokerSuits[1],number: 6},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[2],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[0],number: 13},{suit:pokerSuits[1],number: 12},{suit:pokerSuits[2],number: 11},{suit:pokerSuits[3],number: 10},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[1],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[0],number: 12},{suit:pokerSuits[0],number: 10},{suit:pokerSuits[0],number: 8},{suit:pokerSuits[0],number: 6},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[1],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[1],number: 1},{suit:pokerSuits[2],number: 1},{suit:pokerSuits[0],number: 13},{suit:pokerSuits[1],number: 13},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[2],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[1],number: 1},{suit:pokerSuits[2],number: 1},{suit:pokerSuits[3],number: 1},{suit:pokerSuits[1],number: 6},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[2],number: 2},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 10},{suit:pokerSuits[0],number: 9},{suit:pokerSuits[0],number: 8},{suit:pokerSuits[0],number: 7},{suit:pokerSuits[0],number: 6},
+    {suit:pokerSuits[1],number: 5},{suit:pokerSuits[1],number: 4},
+]));
+console.log(findHand([
+    {suit:pokerSuits[0],number: 1},{suit:pokerSuits[0],number: 13},{suit:pokerSuits[0],number: 12},{suit:pokerSuits[0],number: 11},{suit:pokerSuits[0],number: 10},
+    {suit:pokerSuits[1],number: 4},{suit:pokerSuits[1],number: 2},
+]));
+*/
+console.log(findHand([
+    {suit: 'heart', number: 4},
+    {suit: 'diamond', number: 13},
+    {suit: 'club', number: 1},
+    {suit: 'spade', number: 11},
+    {suit: 'club', number: 11},
+    {suit: 'diamond', number: 4},
+    {suit: 'spade', number: 4},
+]))
+
+function compareHand(hand1, hand2) {
+	if (hand1.rank < hand2.rank) {
+		return 1;
+	}
+	if (hand1.rank > hand2.rank) {
+		return -1;
+	}
+	for (let i = 0; i < Math.min(hand1.cards.length, hand2.cards.length); ++i) {
+		if ((hand1.cards[i].number + 12) % 13 > (hand2.cards[i].number + 12) % 13) {
+			return 1;
+		}
+		if ((hand1.cards[i].number + 12) % 13 < (hand2.cards[i].number + 12) % 13) {
+			return -1;
+		}
+	}
+	return 0;
+}
+
 function send(ws, message, data) {
     ws.send(JSON.stringify({ message, data }));
 }
+
+
 
 class PokerRoom {
     constructor(id, name, discription, password, startChips, waitingTime, blindInterval, cheat, creatorName, creatorWs) {
@@ -107,6 +318,7 @@ class PokerRoom {
             button: this.button,
             blindTimer: this.blindTimer,
             limitTimer: this.limitTimer,
+            showdowning: this.showdowning,
 
             me: player.getDetail(),
             players: this.players.map(e => e.getInfo(this.showdowning)),
@@ -114,7 +326,7 @@ class PokerRoom {
     }
     dealStack() {
         // フィッシャー–イェーツのシャッフルによってカードをシャッフルする
-        const playingCards = ["spade", "club", "diamond", "heart"].map(
+        const playingCards = pokerSuits.map(
             suit => new Array(13).fill(0).map((_, i) => i + 1).map(
                 number => { return { suit, number }; })).flat();
         this.stack = [];
@@ -143,7 +355,6 @@ class PokerRoom {
         }, 2000);
     }
     finish() {
-
         this.broadcast("RESULT", {});
 
         this.started = false;
@@ -176,6 +387,7 @@ class PokerRoom {
             player.button = false;
             player.step = false;
             player.cheated = false;
+            player.cheatedIndex = -1;
             player.cards = [];
             player.rank = 0;
             player.folded = false;
@@ -191,18 +403,19 @@ class PokerRoom {
             this.playingPlayers.filter(e => e.chips === 0).forEach((player, _, lostPlayers) => {
                 player.rank = this.playingPlayers.length - lostPlayers.length + 1;
             });
+            this.playingPlayers.forEach(player => {
+                player.card = [];
+                player.state = "";
+                player.folded = false;
+                player.hand = null;
+            });
         }
         this.playingPlayers = this.players.filter(e => e.chips > 0);
         if (this.playingPlayers.length <= 1) {
+            this.playingPlayers.forEach(e => e.rank = 1);
             this.finish();
             return;
         }
-        this.playingPlayers.forEach(player => {
-            player.bet = 0;
-            player.state = "";
-            player.folded = false;
-            player.hand = null;
-        });
         if (this.button !== -1) {
             this.players[this.button].button = false;
         }
@@ -219,7 +432,6 @@ class PokerRoom {
             this.raiseBlind();
         }
         setTimeout(() => {
-            this.pot = 0;
             this.playingPlayers.forEach(player => {
                 player.cards = this.stack.splice(0, 2);
                 if (player.chips < this.ante) {
@@ -276,19 +488,61 @@ class PokerRoom {
     }
     showdown() {
         this.showdowning = true;
-        this.broadcast("SHOWDOWN", {});
+        const participants = this.playingPlayers.filter(e => !e.folded);
+        participants.filter(e => e.cheated).forEach(player => {
+            const cheatedCard = player.cards[player.cheatedIndex];
+            for (const card of this.cards) {
+                if (card.suit === cheatedCard.suit && card.number === cheatedCard.number) {
+                    cheatedCard.glow = true;
+                    card.glow = true;
+                    player.state = "チートバレ";
+                    return;
+                }
+            }
+            for (const p of participants) {
+                for (let i = 0; i < p.cards.length; ++i) {
+                    if (p === player && i === player.cheatedIndex) continue;
+                    const card = p.cards[i];
+                    if (card.suit === cheatedCard.suit && card.number === cheatedCard.number) {
+                        cheatedCard.glow = true;
+                        card.glow = true;
+                        player.state = "チートバレ";
+                        return;
+                    }
+                }
+            }
+        });
 
-        // 役の処理
-
-        setTimeout(() => this.win([]), 1000);
+        let winners = [];
+        participants.filter(e => e.state !== "チートバレ").forEach(player => {
+            player.hand = findHand([...this.cards, ...player.cards]);
+            const comp = winners.length === 0 ? 0 : compareHand(player.hand, winners[0].hand);
+            if (comp > 0) {
+                winners = [player];
+            }
+            else if (comp === 0) {
+                winners.push(player);
+            }
+        });
+        this.win(winners);
     }
     win(players) {
-        const chips = Math.floor(this.pot / players.length);
-
-        this.broadcast("WIN", { players: players.map(e => { return { name: e.name, hand: e.hand }; }) });
+        this.playingPlayers.forEach(e => e.bet = 0);
+        if (players.length > 0) {
+            const chips = Math.floor(this.pot / players.length);
+            players.forEach(e => e.chips += chips);
+            this.pot -= chips * players.length;
+        }
+        players.forEach(e => e.state = "WIN");
+        if (this.showdowning) {
+            this.broadcast("SHOWDOWN", {});
+        }
         setTimeout(() => {
-            this.preflop();
-        }, 5000);
+            this.broadcast("WINNER", { players: players.map(e => { return { name: e.name, hand: e.hand }; }) });
+            setTimeout(() => {
+                this.preflop();
+            }, this.showdowning ? 8000 : 3000);
+        }, this.showdowning ? 3000 : 0);
     }
     nextStep() {
         this.playingPlayers[this.step].step = false;
@@ -391,8 +645,8 @@ class PokerRoom {
         }
         else {
             this.pot += this.bet - player.bet;
+            player.chips -= this.bet - player.bet;
             player.bet = this.bet;
-            player.chips -= this.bet;
             player.state = "コール";
         }
         player.step = false;
@@ -432,7 +686,7 @@ class PokerRoom {
         }
         player.online = false;
         this.broadcast("DISCONNECTED", { player: player.name });
-        if (player.turn) {
+        if (player.step) {
             this.defaultAction(player);
         }
     }
@@ -491,10 +745,11 @@ class PokerRoom {
             case "CHEAT":
                 if (player.cheated || this.cards.length > 0 || player.cards.length == 0) break;
                 if (data.index != 0 && data.index != 1) break;
-                if (!["spade", "club", "diamond", "heart"].includes(data.suit)) break;
+                if (!pokerSuits.includes(data.suit)) break;
                 if (data.number < 1 || data.number > 13) break;
                 player.cards[data.index] = { suit: data.suit, number: data.number };
                 player.cheated = true;
+                player.cheatedIndex = data.index;
                 send(ws, "CHEATED", { room: this.getInfo(player), index: data.index });
                 break;
         }

@@ -168,6 +168,13 @@
     border: 0.1rem outset silver;
 }
 
+.poker_player_state.glow {
+    margin-bottom: -0.5em;
+    color: yellow;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
 .poker_player_bet {
     border: 0.1rem outset gold;
 }
@@ -342,6 +349,48 @@
 .poker_dialog_blind_list>li {
     display: flex;
     justify-content: space-between;
+}
+
+.poker_dialog_winner {
+    margin: 1rem 0.5rem 3rem;
+}
+
+.poker_dialog_winner_player {
+    margin-top: 2rem;
+}
+
+.poker_dialog_winner_hand {
+    padding-left: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.poker_dialog_winner_cards {
+    padding-left: 2rem;
+    padding-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.poker_dialog_winner_nothing {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.poker_dialog_result {
+    margin: 1.5rem;
+    min-width: 8rem;
+}
+
+.poker_dialog_result_list>li {
+    margin-bottom: 0.5rem;
+}
+
+.poker_dialog_result_rank {
+    margin-right: 1.5rem;
+}
+
+.poker_dialog_result_name {
+    font-size: 1.5rem;
 }
 
 
