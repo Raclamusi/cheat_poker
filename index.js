@@ -47,6 +47,10 @@ function updateRooms() {
             started: e.started,
             participants: e.players.length,
             discription: e.discription,
+            startChips: e.startChips,
+            waitingTime: e.waitingTime,
+            blindInterval: e.blindInterval,
+            cheat: e.cheat,
             id: e.id,
         };
     }));

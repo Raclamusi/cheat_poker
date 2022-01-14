@@ -18,6 +18,10 @@ const dialogCreateButton = document.getElementById("rooms_dialog_create_button")
 
 const dialogJoinRoomSpan = document.getElementById("rooms_dialog_join_room");
 const dialogJoinDiscriptionSpan = document.getElementById("rooms_dialog_join_discription");
+const dialogJoinStartChipsSpan = document.getElementById("rooms_dialog_join_start_chips");
+const dialogJoinWaitingTimeSpan = document.getElementById("rooms_dialog_join_waiting_time");
+const dialogJoinBlindIntervalSpan = document.getElementById("rooms_dialog_join_blind_interval");
+const dialogJoinCheatSpan = document.getElementById("rooms_dialog_join_cheat");
 const dialogJoinPassword = document.getElementById("rooms_dialog_join_password_outer");
 const dialogJoinPlayerInput = document.getElementById("rooms_dialog_join_player");
 const dialogJoinPasswordInput = document.getElementById("rooms_dialog_join_password");
@@ -56,6 +60,10 @@ function onSelectRoom() {
     const room = roomsInfo.find(e => e.id === id);
     dialogJoinRoomSpan.textContent = room.name;
     dialogJoinDiscriptionSpan.textContent = room.discription;
+    dialogJoinStartChipsSpan.textContent = room.startChips;
+    dialogJoinWaitingTimeSpan.textContent = room.waitingTime;
+    dialogJoinBlindIntervalSpan.textContent = room.blindInterval;
+    dialogJoinCheatSpan.textContent = room.cheat ? "可" : "不可";
     dialogJoinPassword.classList[room.locked ? "remove" : "add"]("hidden");
     dialogJoinButton.onclick = () => {
         hideDialog();

@@ -82,3 +82,8 @@
 .rooms_dialog_create_button {
     font-size: 1.2rem;
 }
+
+.rooms_dialog_join_settings {
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
