@@ -234,15 +234,6 @@ console.log(findHand([
     {suit:pokerSuits[1],number: 4},{suit:pokerSuits[1],number: 2},
 ]));
 */
-console.log(findHand([
-    {suit: 'heart', number: 4},
-    {suit: 'diamond', number: 13},
-    {suit: 'club', number: 1},
-    {suit: 'spade', number: 11},
-    {suit: 'club', number: 11},
-    {suit: 'diamond', number: 4},
-    {suit: 'spade', number: 4},
-]))
 
 function compareHand(hand1, hand2) {
 	if (hand1.rank < hand2.rank) {
