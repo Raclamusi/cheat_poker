@@ -106,7 +106,7 @@ const pokerHands = [
 			for (let i = 0; i < cards.length - 2; ++i) {
                 if (cards[i].number !== cards[i + 1].number || cards[i].number !== cards[i + 2].number) continue;
                 for (let j = 0; j < cards.length - 1; ++j) {
-                    if (cards[j].number !== cards[j + 1].number) continue;
+                    if (cards[j].number !== cards[j + 1].number || cards[j].number === cards[i].number) continue;
                     return [cards[i], cards[i + 1], cards[i + 2], cards[j], cards[j + 1]];
                 }
             }
@@ -243,10 +243,10 @@ function compareHand(hand1, hand2) {
 		return -1;
 	}
 	for (let i = 0; i < Math.min(hand1.cards.length, hand2.cards.length); ++i) {
-		if ((hand1.cards[i].number + 12) % 13 > (hand2.cards[i].number + 12) % 13) {
+		if ((hand1.cards[i].number + 11) % 13 > (hand2.cards[i].number + 11) % 13) {
 			return 1;
 		}
-		if ((hand1.cards[i].number + 12) % 13 < (hand2.cards[i].number + 12) % 13) {
+		if ((hand1.cards[i].number + 11) % 13 < (hand2.cards[i].number + 11) % 13) {
 			return -1;
 		}
 	}
@@ -537,8 +537,11 @@ class PokerRoom {
     }
     nextStep() {
         this.playingPlayers[this.step].step = false;
-        if (this.playingPlayers.filter(e => !e.folded && e.chips > 0) <= 1) {
-            this.showdowning = true;
+        {
+            const players = this.playingPlayers.filter(e => !e.folded && e.chips > 0);
+            if (players.length <= 1 && players.every(e => e.bet === this.bet)) {
+                this.showdowning = true;
+            }
         }
         if (!this.showdowning) do {
             this.step++;
@@ -549,6 +552,7 @@ class PokerRoom {
         const player = this.playingPlayers[this.step];
         const otherPlayers = this.playingPlayers.filter(e => e !== player);
         if (otherPlayers.every(e => e.folded)) {
+            this.showdowning = false;
             this.win([player]);
             return;
         }
@@ -623,15 +627,15 @@ class PokerRoom {
     }
     allIn(player) {
         player.bet += player.chips;
-        player.chips = 0;
         this.bet = Math.max(this.bet, player.bet);
         this.pot += player.chips;
+        player.chips = 0;
         player.state = "ALL IN";
         this.broadcast("ALLIN", { player: player.name });
     }
     call(player) {
         if (!player.step) return;
-        if (player.bet + player.chips < this.bet) {
+        if (player.bet + player.chips <= this.bet) {
             this.allIn(player);
         }
         else {
@@ -645,7 +649,7 @@ class PokerRoom {
     }
     raise(player, chips) {
         if (!player.step) return;
-        if (player.bet + chips < this.bet || chips > player.chips) {
+        if (player.bet + chips <= this.bet || chips > player.chips) {
             send(player.ws, "ERROR", "レイズ額が不正です");
             return;
         }
