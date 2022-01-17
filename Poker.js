@@ -76,10 +76,13 @@ const pokerHands = [
             if (suitedCards === undefined) return null;
             let indices = [0];
             for (let i = 1; i < suitedCards.length; ++i) {
-                if (suitedCards.length - i < 5 - indices.length) break;
+                if (suitedCards.length - i < 4 - indices.length) break;
                 if (suitedCards[i].number === suitedCards[i - 1].number) continue;
                 if (suitedCards[i].number === suitedCards[i - 1].number - 1) {
                     indices.push(i);
+                    if (indices.length === 4 && suitedCards[i].number === 2 && suitedCards[0].number === 1) {
+                        indices.unshift(0);
+                    }
                     if (indices.length === 5) {
                         return indices.map(index => suitedCards[index]);
                     }
@@ -125,10 +128,13 @@ const pokerHands = [
 		fit: function (cards) {
             let indices = [0];
 			for (let i = 1; i < cards.length; ++i) {
-                if (cards.length - i < 5 - indices.length) break;
+                if (cards.length - i < 4 - indices.length) break;
                 if (cards[i].number === cards[i - 1].number) continue;
                 if (cards[i].number === cards[i - 1].number - 1 || indices.length === 1 && cards[i - 1].number === 1 && cards[i].number === 13) {
                     indices.push(i);
+                    if (indices.length === 4 && cards[i].number === 2 && cards[0].number === 1) {
+                        indices.unshift(0);
+                    }
                     if (indices.length === 5) {
                         return indices.map(index => cards[index]);
                     }
